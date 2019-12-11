@@ -1,0 +1,36 @@
+Building a Python 3.5 Virtual Env Apache2  modWSGI and Flask Web Server – stretch base
+
+
+Install base apache2 and utils
+	•	sudo apt-get install apache2 apache2-utils
+
+Install mod wsgi libraries
+	•	http://flask.pocoo.org/docs/1.0/deploying/mod_wsgi/
+	•	sudo apt-get install libapache2-mod-wsgi – for Python2.x
+	•	sudo apt-get install libapache2-mod-wsgi-py3 for Python 3.x
+
+Change ownership and group of /var/www
+	•	cd /var/www
+	•	sudo chown -R pi:pi ./www
+
+Install Virtualenv and utilities
+	•	http://docs.python-guide.org/en/latest/dev/virtualenvs/
+	•	sudo pip install virtualenv
+	•	sudo pip install virtualenvwrapper
+
+Create a Virtual Env for the web deployment
+	•	mkvirtualenv --python=python3.5 /var/www/my_app/venv/ 
+		o	(uses a specific Python version)
+	•	mkvirtualenv  /var/www/my_app/venv/ 
+		o	(uses the system default Python ie 2.x)
+
+Delete a Virtual Env
+	•	rmvirtualenv my_app
+
+To activate any virtual environment and install requirements.txt
+	•	source /var/www/my_app/venv/bin/activate
+	•	pip install -r requirements.txt 
+	•	Use ‘deactivate’ to exit 
+
+
+

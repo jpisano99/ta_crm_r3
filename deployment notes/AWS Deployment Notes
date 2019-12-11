@@ -1,0 +1,26 @@
+Required for AWS EBS deployment:
+Create a ZIP file with:
+    application.py (a mod_WSGI file in disguise)
+    my_app directory structure
+    requirements.txt
+
+Tested with Python 3.6 AWS Linux 2.7.1
+
+Statics:
+    In order to find Statics
+    Goto EBS Configuration-> Software
+
+    Leave Path: /static/
+    CHANGE Directory from: static/ to my_app/static
+
+To mount an Elastic File System onto an Ubuntu ECS Instance
+    1. Install NFS on the instance
+     sudo apt-get -y install nfs-common
+    2. Replace file-system-id with yours:
+     sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport file-system-id.efs.aws-region.amazonaws.com:/ efs-mount-point
+
+To mount an Elastic File System onto an ElasticBeanStalk Env
+    See the .ebextensions file storage-efs-mountfilesystems.config and include in your bundle
+    Configure the Env to be in a default VPC
+    Configure your Env to be "Small" since "Tiny" does not seem to be supported
+    Configure Statics directory as per above

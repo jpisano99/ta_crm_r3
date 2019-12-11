@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!--Bootstrap 4 and FontAwesome CDN css files-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href= "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>My Template</title>
+</head>
+
+<body>
+    <div class="container">
+        <form action = "{{url_for('saveit',id=record[0].id)}}" method = "POST">
+
+            <div class="form-group row">
+                <label for="pss_name" class="col-2 col-form-label">PSS Name</label>
+                <input class="col-4 form-control" type="text" value="{{ record[0].pss_name }}" name="pss_name" id="pss_name">
+            </div>
+            <div class="form-group row">
+                <label for="tsa_name" class="col-2 col-form-label">TSA Name</label>
+                <input class="col-4 form-control" type="text" value="{{ record[0].tsa_name }}" name="tsa_name" id="tsa_name">
+            </div>
+            <div class="form-group row">
+                <label for="sales_level_1" class="col-2 col-form-label">Sales Level 1</label>
+                <input class="col-4 form-control" type="text" value="{{ record[0].sales_level_1 }}" name="sales_level_1" id="sales_level_1">
+            </div>
+            <div class="form-group row">
+                <label for="sales_level_2" class="col-2 col-form-label">Sales Level 2</label>
+                <input class="col-4 form-control" type="text" value="{{ record[0].sales_level_2 }}" name="sales_level_2" id="sales_level_2">
+            </div>
+            <div class="form-group row">
+                <label for="sales_level_3" class="col-2 col-form-label">Sales Level 3</label>
+                <input class="col-4 form-control" type="text" value="{{ record[0].sales_level_3 }}" name="sales_level_3" id="sales_level_3">
+            </div>
+            <div class="form-group row">
+                <label for="sales_level_4" class="col-2 col-form-label">Sales Level 4</label>
+                <input class="col-4 form-control" type="text" value="{{ record[0].sales_level_4 }}" name="sales_level_4" id="sales_level_4">
+            </div>
+            <div class="form-group row">
+                <label for="sales_level_5" class="col-2 col-form-label">Sales Level 5</label>
+                <input class="col-4 form-control" type="text" value="{{ record[0].sales_level_5 }}" name="sales_level_5" id="sales_level_5">
+            </div>
+            <div class="form-group row">
+                <label for="fiscal_year" class="col-2 col-form-label">Fiscal Year</label>
+                <input class="col-4 form-control" type="text" value="{{ record[0].fiscal_year }}" name="fiscal_year" id="fiscal_year">
+            </div>
+
+
+          <button type="submit" name="btnClick" value="{{ action[0] }}" class="btn btn-primary">{{ action[1] }}</button>
+
+          <button type="submit" name="btnClick" value="cancel" class="btn btn-primary">Cancel</button>
+
+        </form>
+    </div>
+
+    <!-- Use CDN copies of Bootstrap 4 and jquey files to allow Pycharm Autocomplete to work -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    Hello World
+    <p>Type of URL: {{type_of_url}}</p>
+    <p>Customer Name: {{cust_name}}</p>
+
+
+    <select>
+        {% for name in sku_list %}
+            <li>{{ name }}</li>
+            <option value={{ name }}>{{ name }}</option>
+        {% endfor %}
+    </select>
+
+
+
+
+</body>
+</html>

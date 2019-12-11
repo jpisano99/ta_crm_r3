@@ -1,0 +1,22 @@
+In order to load CSV files directly in MySql using the load data local infile command:
+
+    path_to_file = "c:/my_csv.csv"
+    sql = "load data local infile '" + path_to_file +\
+          "' into table bookings" +\
+          " fields terminated by ','" +\
+          " enclosed by '\"'" +\
+          " escaped by ''" +\
+          " lines terminated by '\\r\\n'"
+    print(sql)
+    db.engine.execute(sql)
+
+
+Change the MySql SERVER .ini file:
+    C:\ProgramData\MySQL\MySQL Server 8.0\my.ini
+# Make this change to ALLOW local_infile to work:
+    [mysqld]
+    local_infile=1
+
+For the CLIENT Side
+    set app.config['SQLALCHEMY_DATABASE_URI']
+    mysql+mysqlconnector://root:YOURPASSWORD@localhost:3306/test_db?charset=utf8&allow_local_infile=true
