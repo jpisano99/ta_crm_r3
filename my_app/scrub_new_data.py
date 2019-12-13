@@ -38,13 +38,16 @@ def scrub_new_data():
         names_with_id[x.erp_end_customer_name] = x.end_customer_global_ultimate_id
     print("Customers Names WITH VALID an ID ", len(names_with_id))
 
+    update_dict = {}
     for k, v in names_with_no_id.items():
         if k in names_with_id:
             print('Matched ', k)
+            update_dict[k] = names_with_id[k]
+
         else:
             print("NO match ", k)
 
-
+    print(update_dict)
     exit()
 
 
