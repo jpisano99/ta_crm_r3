@@ -102,3 +102,26 @@ class Bookings(db.Model):
     hash_value = db.Column(db.String(50))
     date_added = db.Column(db.DateTime)
 
+class Customer_Ids(db.Model):
+    __tablename__ = 'customer_ids'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    end_customer_global_ultimate_id = db.Column(db.String(50))
+
+
+class Customer_Names(db.Model):
+    __tablename__ = 'customer_names'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    erp_end_customer_name = db.Column(db.String(50))
+    end_customer_global_ultimate_id = db.Column(db.String(50))
+
+
+class Orders(db.Model):
+    __tablename__ = 'orders'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    erp_sales_order_number = db.Column(db.String(50))
+    end_customer_global_ultimate_id = db.Column(db.String(50))
+
+

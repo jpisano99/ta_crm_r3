@@ -1,6 +1,7 @@
 from my_app.settings import app_cfg
 import datetime
 import my_app.tool_box as tool
+import time
 
 
 def import_updates_to_sql():
