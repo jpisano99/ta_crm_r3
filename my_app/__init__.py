@@ -3,6 +3,7 @@ import mysql
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
+from flask_marshmallow import Marshmallow
 from my_app.settings import app_cfg, db_config
 from my_app.check_dir_tree import check_dir_tree
 from base64 import b64encode
@@ -72,6 +73,10 @@ print('SQLALCHEMY_DATABASE_URI is:', app.config['SQLALCHEMY_DATABASE_URI'])
 #
 # # Create db for SQL Alchemy
 db = SQLAlchemy(app)
+
+#
+# # Create ma for Marshmallow
+ma = Marshmallow(app)
 
 
 # Are we connected if so How & Where ?

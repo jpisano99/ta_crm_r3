@@ -2,8 +2,9 @@ from my_app.settings import db_config
 from sqlalchemy import desc, asc
 import my_app.tool_box as tool
 from my_app import db
-from my_app.models import Bookings, Customer_Ids, Customer_Names, Orders
+from my_app.models import Bookings, Customer_Ids, Customer_Names, Orders, BookingsSchema
 import time
+from flask import jsonify
 
 
 #
@@ -29,14 +30,30 @@ import time
 # print(my_bookings)
 # db.session.commit()
 
-
 my_bookings = Bookings.query.filter(Bookings.end_customer_global_ultimate_id == "-999").\
                 filter(Bookings.erp_end_customer_name != "-UNKNOWN").all()
+
+# jim = Bookings.query.first()
+# # print(jsonify(jim))
+# bookings_schema = BookingsSchema()
+# output = bookings_schema.dump(jim)
+# print(output)
+#
+#
+# # print(jsonify(output))
+# exit()
+
+
+stan = db.engine.execute("SHOW COLUMNS FROM `bookings`;")
+for i in stan:
+    print(i[0])
+
 print(len(my_bookings))
 names_with_no_id = {}
 for x in my_bookings:
     # print(x.erp_end_customer_name, x.end_customer_global_ultimate_id)
     names_with_no_id[x.erp_end_customer_name] = x.end_customer_global_ultimate_id
+    print(x.sales_agent_name)
 
 print(len(names_with_no_id))
 print(names_with_no_id)

@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Home Page</h1>
+    {% for customer in customers %}
+        <ol>{{ customer.pss}}  {{customer.tsa}}</ol>
+    {% endfor %}
+{% endblock content %}
+
