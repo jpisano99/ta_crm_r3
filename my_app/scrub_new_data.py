@@ -13,24 +13,112 @@ def scrub_new_data():
     #
 
     my_bookings = Bookings.query.order_by(Bookings.id.asc())
-    # print(len(my_bookings))
+
+    rec_count = db.engine.execute("SELECT COUNT(*) FROM `bookings`;")
+    rec_count = Bookings.query.all()
+    print('Bookings size start', len(rec_count))
+
+    # Loop over Bookings and Build Indexes of following 3 Unique Identifiers
     cust_name_dict = {}  # {cust_name:cust_id}
     cust_id_dict = {}  # {cust_id:cust_name}
     cust_so_dict = {}  # {so:cust_id}
+    repair_list = []
 
-    # Loop through and build reference dicts
+    # Loop through and build cross-reference dicts
     for r in my_bookings:
+        valid_cust_name = False
+        valid_cust_id = False
+        valid_so_num = False
+
+        rec_num = r.id
         cust_name = r.erp_end_customer_name
         cust_id = r.end_customer_global_ultimate_id
         cust_so_num = r.erp_sales_order_number
 
-        if (cust_id != '-999') and (cust_name_dict != 'UNKNOWN'):
-            cust_id_dict[cust_id] = cust_name
-            cust_name_dict[cust_name] = cust_id
+        # Check Validity
+        if cust_name != 'UNKNOWN':
+            valid_cust_name = True
+            cust_name_dict[cust_name] = [cust_id, cust_so_num]
 
-            if cust_so_num != '-7777' and cust_so_num != '-6666' and cust_so_num != '-9999':
-                cust_so_dict[cust_so_num] = cust_id
+        if cust_id != '-999':
+            valid_cust_id = True
+            cust_id_dict[cust_id] = [cust_name, cust_so_num]
 
+        if cust_so_num != '-7777' and cust_so_num != '-6666' and cust_so_num != '-9999':
+            valid_so_num = True
+            cust_so_dict[cust_so_num] = [cust_id, cust_name]
+
+        # Is this record able to be repaired ?
+        # skip this record
+        if (not valid_cust_name) and (not valid_cust_id) and (not valid_so_num):
+            continue
+
+        # Does this record need repair ?
+        if (not valid_cust_name) or (not valid_cust_id) or (not valid_so_num):
+            repair_list.append([rec_num, valid_cust_name, valid_cust_id, valid_so_num])
+
+    for repair_rec in repair_list:
+        r = Bookings.query.filter_by(id=repair_rec[0]).first()
+        rec_num = r.id
+        cust_name = r.erp_end_customer_name
+        cust_id = r.end_customer_global_ultimate_id
+        cust_so_num = r.erp_sales_order_number
+
+        if not repair_rec[1]:
+            print("needs cust name", cust_name)
+        if not repair_rec[2]:
+            print("needs cust id", cust_id)
+        if not repair_rec[3]:
+            print ("needs so num", cust_so_num)
+
+        time.sleep(.25)
+
+
+    #
+    #
+    # for r in my_bookings:
+    #     cust_name = r.erp_end_customer_name
+    #     cust_id = r.end_customer_global_ultimate_id
+    #     cust_so_num = r.erp_sales_order_number
+    #
+    #     if cust_name not in cust_name_dict:
+
+
+
+        #
+        #
+        # if valid_cust_id and (valid_cust_name or valid_so_num):
+        #     if cust_name == 'UNKNOWN':
+        #         print (cust_id, cust_name, cust_so_num)
+        #         time.sleep(.1)
+        #
+        # if valid_cust_name and (valid_cust_id or valid_so_num):
+        #     if cust_name == 'UNKNOWN':
+        #         print (cust_id, cust_name, cust_so_num)
+        #         time.sleep(.1)
+        #     # print(cust_id, cust_name, cust_so_num)
+        #
+        # if valid_so_num and (valid_cust_id or valid_cust_name):
+        #     if cust_name == 'UNKNOWN':
+        #         print (cust_id, cust_name, cust_so_num)
+        #         time.sleep(.1)
+
+
+
+
+
+
+        # # If cust_id AND cust_name are valid then add to the
+        # if (cust_id != '-999') and (cust_name_dict != 'UNKNOWN'):
+        #     cust_id_dict[cust_id] = cust_name
+        #     cust_name_dict[cust_name] = cust_id
+        #
+        #     if cust_so_num != '-7777' and cust_so_num != '-6666' and cust_so_num != '-9999':
+        #         cust_so_dict[cust_so_num] = cust_id
+
+    print('phase 0 done')
+    print("records needing repair", len(repair_list))
+    exit()
 
     # Now loop over every record and improve the data
     for r in my_bookings:
