@@ -40,10 +40,16 @@ def load_data():
     return (msg)
 
 
-
 @app.route('/dash_board', methods=['GET', 'POST'])
 @app.route('/dash', methods=['GET', 'POST'])
 def dash_board():
+    if request.method == 'POST':
+        srch_val = request.form.get('srch_val')
+        print('looking for', srch_val)
+        rslt = Bookings.query.filter(Bookings.erp_end_customer_name == srch_val).all()
+        bookings_schema = BookingsSchema(many=True)
+        output = bookings_schema.dump(rslt)
+        return render_template('tables.html', title='Tables', my_rows=output)
     return render_template('index.html', title='Index')
 
 

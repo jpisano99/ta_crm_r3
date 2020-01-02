@@ -194,7 +194,5 @@ def scrub_new_data():
     exit()
 
 
-
-
 if __name__ == "__main__" and __package__ is None:
     scrub_new_data()
