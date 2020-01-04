@@ -11,20 +11,30 @@ def scrub_new_data():
     #
     # Scrub Raw Bookings Table of Invalid Data
     #
-
-    my_bookings = Bookings.query.order_by(Bookings.id.asc())
-
-    rec_count = db.engine.execute("SELECT COUNT(*) FROM `bookings`;")
     rec_count = Bookings.query.all()
     print('Bookings size start', len(rec_count))
 
-    # Loop over Bookings and Build Indexes of following 3 Unique Identifiers
+    #
+    # First Step: Fix and Update Bad SO Nums
+    #
+    so_records = Bookings.query.filter((Bookings.erp_sales_order_number == "-9999") |
+                                    (Bookings.erp_sales_order_number == "-6666") |
+                                    (Bookings.erp_sales_order_number == "-7777")).all()
+    for r in so_records:
+        cust_so_num = (r.erp_end_customer_name[:15]).replace(' ', '_')+r.erp_sales_order_number
+        r.erp_sales_order_number = cust_so_num
+    db.session.commit()
+
+    #
+    # Second Step: Loop over Bookings and Build Indexes of following 3 Unique Identifiers
+    #
     cust_name_dict = {}  # {cust_name:cust_id}
     cust_id_dict = {}  # {cust_id:cust_name}
     cust_so_dict = {}  # {so:cust_id}
     repair_list = []
+    delete_list = []
 
-    # Loop through and build cross-reference dicts
+    my_bookings = Bookings.query.order_by(Bookings.id.asc())
     for r in my_bookings:
         valid_cust_name = False
         valid_cust_id = False
@@ -35,43 +45,133 @@ def scrub_new_data():
         cust_id = r.end_customer_global_ultimate_id
         cust_so_num = r.erp_sales_order_number
 
-        # Check Validity
+        # Check Validity of each
         if cust_name != 'UNKNOWN':
             valid_cust_name = True
-            cust_name_dict[cust_name] = [cust_id, cust_so_num]
+        else:
+            cust_name = 'INVALID'
 
         if cust_id != '-999':
             valid_cust_id = True
-            cust_id_dict[cust_id] = [cust_name, cust_so_num]
+        else:
+            cust_id = 'INVALID'
 
-        if cust_so_num != '-7777' and cust_so_num != '-6666' and cust_so_num != '-9999':
+        if cust_so_num[:7] != 'UNKNOWN':
             valid_so_num = True
-            cust_so_dict[cust_so_num] = [cust_id, cust_name]
+        else:
+            cust_so_num = 'INVALID'
 
         # Is this record able to be repaired ?
-        # skip this record
+        # Flag this record to DELETE if ALL 3 are invalid
         if (not valid_cust_name) and (not valid_cust_id) and (not valid_so_num):
+            delete_list.append(r.id)
             continue
+
+        # if rec_num == 2437:
+        #     print (cust_id, cust_name, cust_so_num)
+        #     print (valid_cust_id, valid_cust_name, valid_so_num)
+        #     exit()
+
+        # Create a dict entry for all Valid values
+        if valid_cust_name:
+            cust_name_dict[cust_name] = [cust_id, cust_so_num]
+        if valid_cust_id:
+            cust_id_dict[cust_id] = [cust_name, cust_so_num]
+        if valid_so_num:
+            cust_so_dict[cust_so_num] = [cust_id, cust_name]
 
         # Does this record need repair ?
         if (not valid_cust_name) or (not valid_cust_id) or (not valid_so_num):
             repair_list.append([rec_num, valid_cust_name, valid_cust_id, valid_so_num])
 
+    #
+    # Flag Bookings "DELETE" that have no useful data
+    #
+    if len(delete_list) > 0:
+        my_str = ""
+        for delete_id in delete_list:
+            my_str = my_str + "id = " + str(delete_id) + " or "
+
+        my_str = my_str[:-3] + ";"
+        sql = "UPDATE bookings SET hash_value = 'DELETE' WHERE " + my_str
+        sql_results = db.engine.execute(sql)
+
+        print("Rows Marked DELETE ", sql_results.rowcount)
+
+        # Physically Delete the marked records
+        del_rows = Bookings.query.filter_by(hash_value = 'DELETE').delete()
+        print('Actually Deleted ', del_rows)
+        db.session.commit()
+
+        rec_count = Bookings.query.all()
+        print('Bookings size NOW', len(rec_count))
+    else:
+        print ('No Bookings Records to Delete')
+
+    #
+    # Loop over the repair records
+    #
+    print("Repair List is:", len(repair_list))
     for repair_rec in repair_list:
         r = Bookings.query.filter_by(id=repair_rec[0]).first()
         rec_num = r.id
         cust_name = r.erp_end_customer_name
         cust_id = r.end_customer_global_ultimate_id
         cust_so_num = r.erp_sales_order_number
+        valid_cust_name = repair_rec[1]
+        valid_cust_id = repair_rec[2]
+        valid_so_num = repair_rec[3]
 
-        if not repair_rec[1]:
-            print("needs cust name", cust_name)
-        if not repair_rec[2]:
-            print("needs cust id", cust_id)
-        if not repair_rec[3]:
-            print ("needs so num", cust_so_num)
+        name1, name2 = 'INVALID', 'INVALID'
+        id1, id2 = 'INVALID', 'INVALID'
 
-        time.sleep(.25)
+        if not valid_cust_name:
+            # print("Customer Name Needed")
+            # We need a cust_name
+            if valid_cust_id:
+                name1 = cust_id_dict[cust_id][0]
+            if valid_so_num:
+                name2 = cust_so_dict[cust_so_num][1]
+            # print("\t\t", rec_num, "cust name options:", name1, ' / ', name2)
+
+            # Select a name
+            if name1 == 'INVALID' and name2 == 'INVALID':
+                cust_name = 'INVALID'
+            elif name1 != 'INVALID':
+                cust_name = name1
+            elif name2 != 'INVALID':
+                cust_name = name2
+
+            r.erp_end_customer_name = cust_name
+            # print("\t\t\tName Results:", cust_name)
+            # print()
+
+        if not valid_cust_id:
+            #print("Customer ID Needed")
+            # We need a cust_id
+            if valid_cust_name:
+                id1 = cust_name_dict[cust_name][0]
+            if valid_so_num:
+                id2 = cust_so_dict[cust_so_num][0]
+            #print("\t\t", rec_num, "cust id options:", id1, ' / ', id2)
+
+            # Select an ID
+            if id1 == 'INVALID' and id2 == 'INVALID':
+                cust_id = 'INVALID'
+            elif id1 != 'INVALID':
+                cust_id = id1
+            elif id2 != 'INVALID':
+                cust_id = id2
+
+            r.end_customer_global_ultimate_id = cust_id
+            # print("\t\t\tID Results:", cust_id)
+            # print()
+        r.hash_value = "REPAIRED"
+        db.session.commit()
+        print(rec_num)
+
+    exit()
+
 
 
     #
