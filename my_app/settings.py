@@ -33,6 +33,13 @@ app_cfg = dict(
     XLS_CUSTOMER='tmp_TA Customer List.xlsx',
     XLS_DASHBOARD='tmp_TA Unified Adoption Dashboard.xlsx',
 
+    #
+    # Testing
+    #
+    XLS_ROSETTA='Rosetta_Stone.xlsx',
+    XLS_SAAS_NAMES='SaaS customer tracking.xlsx',
+    XLS_UNIQUE_CUSTOMERS='tmp_unique_customer_names.xlsx',
+
     # SmartSheet Sheets and Names
     SS_SAAS='SaaS customer tracking',
     SS_CX='CX Tetration Customer Comments v3.0',
