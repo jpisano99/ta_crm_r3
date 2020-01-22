@@ -179,6 +179,9 @@ def scrub_new_data():
     tool.drop_tables("Orders")
     tool.create_tables("Orders")
 
+    tool.drop_tables("Web_Orders")
+    tool.create_tables("Web_Orders")
+
     #
     # Create Customer ID Table
     #
@@ -203,9 +206,22 @@ def scrub_new_data():
     sql = "INSERT INTO `orders` (`erp_sales_order_number`, `end_customer_global_ultimate_id`) " + \
           "SELECT DISTINCT `erp_sales_order_number`, `end_customer_global_ultimate_id` FROM " + \
           "`" + db_config['DATABASE'] + "`.`Bookings`"
-
     sql_results = db.engine.execute(sql)
     print("Loaded Customer Unique Order Numbers:", sql_results.rowcount)
+
+
+    #
+    # Create Customer Web Orders Table
+    #
+    sql = "INSERT INTO `web_orders` (`web_order_id`, `end_customer_global_ultimate_id`) " + \
+          "SELECT DISTINCT `web_order_id`, `end_customer_global_ultimate_id` FROM " + \
+          "`" + db_config['DATABASE'] + "`.`Bookings`"
+    sql_results = db.engine.execute(sql)
+    print("Loaded Customer Web Order Numbers:", sql_results.rowcount)
+
+    sql = "DELETE FROM `web_orders` WHERE `web_order_id` = 'UNKNOWN'"
+    sql_results = db.engine.execute(sql)
+    print("Scrubbed Customer Unique Web Order Numbers:", sql_results.rowcount)
 
     return
 

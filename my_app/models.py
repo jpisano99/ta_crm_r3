@@ -132,6 +132,14 @@ class Orders(db.Model):
     end_customer_global_ultimate_id = db.Column(db.String(50))
 
 
+class Web_Orders(db.Model):
+    __tablename__ = 'web_orders'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    web_order_id = db.Column(db.String(50))
+    end_customer_global_ultimate_id = db.Column(db.String(50))
+
+
 class Test_Table(db.Model):
     __tablename__ = 'test_table'
 

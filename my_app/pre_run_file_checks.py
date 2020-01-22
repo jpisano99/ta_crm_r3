@@ -152,8 +152,8 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                     as_status.append(my_ws.row_slice(row))
 
     # For the Subscriptions sheet we need to convert
-    # col 6 & 8 to DATE from STR
-    # col 10 (monthly rev) to FLOAT from STR
+    # col 9 & 11 to DATE from STR
+    # col 13 (monthly rev) to FLOAT from STR
     #
     subscriptions_scrubbed = []
 
@@ -216,13 +216,18 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 continue
 
             if col_num == 0 or col_num == 2 or \
-                    col_num == 11:  # Fiscal Year / Fiscal Period / SO
+                    col_num == 11:  # Fiscal Year / Fiscal Period / SO Num
                 tmp_val = str(int(my_cell.value))
-            elif col_num == 15: # Customer ID
+            elif col_num == 15:  # Customer ID
                 try:
                     tmp_val = str(int(my_cell.value))
                 except ValueError:
                     tmp_val = '-999'
+            elif col_num == 12:  # Web Order Num
+                try:
+                    tmp_val = str(int(my_cell.value))
+                except ValueError:
+                    tmp_val = 'UNKNOWN'
             else:
                 tmp_val = my_cell.value
 
