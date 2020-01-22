@@ -165,10 +165,10 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 # Is this the header row ?
                 my_new_row.append(my_cell.value)
                 continue
-            if col_num == 6 or col_num == 8:
+            if col_num == 9 or col_num == 11:
                 tmp_val = datetime.strptime(my_cell.value, '%d %b %Y')
                 # tmp_val = datetime.strptime(my_cell.value, '%m/%d/%Y')
-            elif col_num == 10:
+            elif col_num == 13:
                 tmp_val = my_cell.value
                 try:
                     tmp_val = float(tmp_val)

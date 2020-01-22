@@ -405,10 +405,10 @@ def main():
         # Gather the fields we want
         sub_cust_name = sub_ws.cell_value(row_num, 2)
         sub_id = sub_ws.cell_value(row_num, 4)
-        sub_start_date = sub_ws.cell_value(row_num, 6)
-        sub_renew_date = sub_ws.cell_value(row_num, 8)
-        sub_renew_status = sub_ws.cell_value(row_num, 5)
-        sub_monthly_rev = sub_ws.cell_value(row_num, 10)
+        sub_start_date = sub_ws.cell_value(row_num, 9)
+        sub_renew_date = sub_ws.cell_value(row_num, 11)
+        sub_renew_status = sub_ws.cell_value(row_num, 8)
+        sub_monthly_rev = sub_ws.cell_value(row_num, 13)
 
         year, month, day, hour, minute, second = xlrd.xldate_as_tuple(sub_start_date, sub_wb.datemode)
         sub_start_date = datetime(year, month, day)
