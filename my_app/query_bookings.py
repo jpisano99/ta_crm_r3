@@ -19,9 +19,11 @@ def test_query():
 
     cust_ids = Customer_Ids.query.all()
 
+    cust_names = Customer_Names.query.all()
+
 
     for cust_id in cust_ids:
-        these_names = cust_id.customer_names
+        these_names = cust_names.my_cust_id
         this_id = cust_id.end_customer_global_ultimate_id
         print(this_id,these_names)
         exit()
