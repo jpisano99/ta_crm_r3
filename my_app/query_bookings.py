@@ -1,4 +1,35 @@
 from my_app import db
+from my_app.models import Bookings, Customer_Ids, Customer_Names, Orders, BookingsSchema
+import my_app.tool_box as tool
+
+def test_query():
+
+    # tool.drop_tables("Customer_Ids")
+    # tool.create_tables("Customer_Ids")
+    #
+    # tool.drop_tables("Customer_Names")
+    # tool.create_tables("Customer_Names")
+    #
+    # tool.drop_tables("Orders")
+    # tool.create_tables("Orders")
+    #
+    # tool.drop_tables("Web_Orders")
+    # tool.create_tables("Web_Orders")
+
+
+    cust_ids = Customer_Ids.query.all()
+
+
+    for cust_id in cust_ids:
+        these_names = cust_id.customer_names
+        this_id = cust_id.end_customer_global_ultimate_id
+        print(this_id,these_names)
+        exit()
+        print(this_id)
+        cust_names = Customer_Names.query.filter_by(end_customer_global_ultimate_id=this_id)
+        for cust_name in cust_names:
+            print('\t',cust_name.erp_end_customer_name)
+    return
 
 
 def query_bookings():
@@ -60,4 +91,5 @@ def query_web_orders():
 
 if __name__ == "__main__" and __package__ is None:
     # query_bookings()
-    query_web_orders()
+    # query_web_orders()
+    test_query()
