@@ -170,16 +170,14 @@ def scrub_new_data():
     #
     # Create New Tables based on imported & updated data
     #
-    tool.drop_tables("Customer_Ids")
-    tool.create_tables("Customer_Ids")
-
-    tool.drop_tables("Customer_Aliases")
-    tool.create_tables("Customer_Aliases")
-
-    tool.drop_tables("Sales_Orders")
-    tool.create_tables("Sales_Orders")
-
     tool.drop_tables("Web_Orders")
+    tool.drop_tables("Sales_Orders")
+    tool.drop_tables("Customer_Aliases")
+    tool.drop_tables("Customer_Ids")
+
+    tool.create_tables("Customer_Ids")
+    tool.create_tables("Customer_Aliases")
+    tool.create_tables("Sales_Orders")
     tool.create_tables("Web_Orders")
 
     #
@@ -208,7 +206,6 @@ def scrub_new_data():
           "`" + db_config['DATABASE'] + "`.`Bookings`"
     sql_results = db.engine.execute(sql)
     print("Loaded Customer Unique Order Numbers:", sql_results.rowcount)
-
 
     #
     # Create Customer Web Orders Table

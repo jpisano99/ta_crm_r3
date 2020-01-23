@@ -5,6 +5,9 @@ import time
 
 
 def import_updates_to_sql():
+    # tool.create_tables("Customer_Ids")
+    # tool.create_tables("Sales_Orders")
+
     tool.create_tables()
     now = datetime.datetime.now()
 

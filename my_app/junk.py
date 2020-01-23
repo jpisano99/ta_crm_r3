@@ -2,10 +2,22 @@ from my_app.settings import db_config
 from sqlalchemy import desc, asc
 import my_app.tool_box as tool
 from my_app import db
-from my_app.models import Bookings, Customer_Ids, Customer_Names, Orders, BookingsSchema
+from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders, BookingsSchema
 import time
 from flask import jsonify
 
+# tool.create_tables("Customer_Ids")
+tool.drop_tables("Sales_Orders")
+tool.create_tables("Sales_Orders")
+# tool.create_tables("Bookings_New")
+
+
+# tool.drop_tables("Bookings")
+
+# tool.drop_tables("Customer_Ids")
+
+
+exit()
 
 #
 # table_name = "bookings"
