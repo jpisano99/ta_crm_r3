@@ -2,7 +2,7 @@ from my_app.settings import db_config
 from sqlalchemy import desc, asc
 import my_app.tool_box as tool
 from my_app import db
-from my_app.models import Bookings, Customer_Ids, Customer_Names, Orders
+from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders
 from fuzzywuzzy import fuzz
 import time
 
@@ -173,11 +173,11 @@ def scrub_new_data():
     tool.drop_tables("Customer_Ids")
     tool.create_tables("Customer_Ids")
 
-    tool.drop_tables("Customer_Names")
-    tool.create_tables("Customer_Names")
+    tool.drop_tables("Customer_Aliases")
+    tool.create_tables("Customer_Aliases")
 
-    tool.drop_tables("Orders")
-    tool.create_tables("Orders")
+    tool.drop_tables("Sales_Orders")
+    tool.create_tables("Sales_Orders")
 
     tool.drop_tables("Web_Orders")
     tool.create_tables("Web_Orders")
@@ -185,25 +185,25 @@ def scrub_new_data():
     #
     # Create Customer ID Table
     #
-    sql = "INSERT INTO `customer_ids` (`end_customer_global_ultimate_id`) " + \
+    sql = "INSERT INTO `customer_ids` (`customer_id`) " + \
           "SELECT DISTINCT `end_customer_global_ultimate_id` FROM " + \
           "`" + db_config['DATABASE'] + "`.`Bookings`"
     sql_results = db.engine.execute(sql)
     print("Loaded Unique Customer IDs:", sql_results.rowcount, ' rows')
 
     #
-    # Create Customer Names Table
+    # Create Customer Alias Table
     #
-    sql = "INSERT INTO `customer_names` (`erp_end_customer_name`, `end_customer_global_ultimate_id`) " + \
+    sql = "INSERT INTO `customer_aliases` (`customer_alias`, `customer_id`) " + \
           "SELECT DISTINCT `erp_end_customer_name`, `end_customer_global_ultimate_id` FROM " + \
           "`" + db_config['DATABASE'] + "`.`Bookings`"
     sql_results = db.engine.execute(sql)
-    print("Loaded Customer_Names:", sql_results.rowcount, ' rows')
+    print("Loaded Customer_Aliases:", sql_results.rowcount, ' rows')
 
     #
-    # Create Customer Orders Table
+    # Create Customer Sales Order Table
     #
-    sql = "INSERT INTO `orders` (`erp_sales_order_number`, `end_customer_global_ultimate_id`) " + \
+    sql = "INSERT INTO `sales_orders` (`so_number`, `customer_id`) " + \
           "SELECT DISTINCT `erp_sales_order_number`, `end_customer_global_ultimate_id` FROM " + \
           "`" + db_config['DATABASE'] + "`.`Bookings`"
     sql_results = db.engine.execute(sql)
@@ -213,7 +213,7 @@ def scrub_new_data():
     #
     # Create Customer Web Orders Table
     #
-    sql = "INSERT INTO `web_orders` (`web_order_id`, `end_customer_global_ultimate_id`) " + \
+    sql = "INSERT INTO `web_orders` (`web_order_id`, `customer_id`) " + \
           "SELECT DISTINCT `web_order_id`, `end_customer_global_ultimate_id` FROM " + \
           "`" + db_config['DATABASE'] + "`.`Bookings`"
     sql_results = db.engine.execute(sql)

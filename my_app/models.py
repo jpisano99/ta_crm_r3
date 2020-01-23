@@ -112,28 +112,27 @@ class BookingsSchema(ma.ModelSchema):
 class Customer_Ids(db.Model):
     __tablename__ = 'customer_ids'
 
-    end_customer_global_ultimate_id = db.Column(db.String(50), primary_key=True)
-    # id = db.Column(db.Integer(), primary_key=True)
-    customer_names = db.relationship('Customer_Names', backref='my_customer_id', lazy=True)
+    customer_id = db.Column(db.String(50), primary_key=True)
+    customer_aliases = db.relationship('Customer_Aliases', backref='my_customer_id', lazy=True)
+    customer_so_numbers = db.relationship('Sales_Orders', backref='my_customer_id', lazy=True)
+    customer_web_order_ids = db.relationship('Web_Orders', backref='my_customer_id', lazy=True)
 
 
-class Customer_Names(db.Model):
-    __tablename__ = 'customer_names'
-
-    id = db.Column(db.Integer(), primary_key=True)
-    erp_end_customer_name = db.Column(db.String(50))
-    end_customer_global_ultimate_id = db.Column(db.String(50))
-    # customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.end_customer_global_ultimate_id'),
-        # nullable=False)
-    customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.end_customer_global_ultimate_id'))
-
-
-class Orders(db.Model):
-    __tablename__ = 'orders'
+class Customer_Aliases(db.Model):
+    __tablename__ = 'customer_aliases'
 
     id = db.Column(db.Integer(), primary_key=True)
-    erp_sales_order_number = db.Column(db.String(50))
-    end_customer_global_ultimate_id = db.Column(db.String(50))
+    customer_alias = db.Column(db.String(50))
+    customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
+
+
+class Sales_Orders(db.Model):
+    __tablename__ = 'sales_orders'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    so_number = db.Column(db.String(50))
+    customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
+    # order_detail = db.relationship('Bookings', backref='my_so_number', lazy=True)
 
 
 class Web_Orders(db.Model):
@@ -141,7 +140,7 @@ class Web_Orders(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     web_order_id = db.Column(db.String(50))
-    end_customer_global_ultimate_id = db.Column(db.String(50))
+    customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
 
 
 class Test_Table(db.Model):

@@ -1,36 +1,34 @@
 from my_app import db
-from my_app.models import Bookings, Customer_Ids, Customer_Names, Orders, BookingsSchema
+from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders, BookingsSchema
 import my_app.tool_box as tool
+import time
+
 
 def test_query():
-
-    # tool.drop_tables("Customer_Ids")
-    # tool.create_tables("Customer_Ids")
-    #
-    # tool.drop_tables("Customer_Names")
-    # tool.create_tables("Customer_Names")
-    #
-    # tool.drop_tables("Orders")
-    # tool.create_tables("Orders")
-    #
-    # tool.drop_tables("Web_Orders")
-    # tool.create_tables("Web_Orders")
-
-
     cust_ids = Customer_Ids.query.all()
 
-    cust_names = Customer_Names.query.all()
-
-
     for cust_id in cust_ids:
-        these_names = cust_names.my_cust_id
-        this_id = cust_id.end_customer_global_ultimate_id
-        print(this_id,these_names)
-        exit()
-        print(this_id)
-        cust_names = Customer_Names.query.filter_by(end_customer_global_ultimate_id=this_id)
-        for cust_name in cust_names:
-            print('\t',cust_name.erp_end_customer_name)
+        these_alaises = cust_id.customer_aliases
+        these_orders = cust_id.customer_so_numbers
+        these_web_orders = cust_id.customer_web_order_ids
+
+        this_id = cust_id.customer_id
+        print()
+        print('Customer ID', this_id, these_alaises)
+        print('\tCustomer Aliases')
+        for a_name in these_alaises:
+            print('\t', a_name.customer_alias)
+
+        print('\t\tSales Orders ')
+        for a_order in these_orders:
+
+            print('\t\t', a_order.so_number, a_order.my_customer_id.customer_id)
+
+        print('\t\tWeb Orders ')
+        for a_web_order in these_web_orders:
+            print('\t\t', a_web_order.web_order_id, a_web_order.my_customer_id.customer_id)
+
+        time.sleep(.5)
     return
 
 
