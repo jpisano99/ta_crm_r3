@@ -6,6 +6,15 @@ from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders
 import time
 from flask import jsonify
 
+jim = 'BUNDESRECHENZENTRUM GESELLSCHAFT MIT BESCHRÃƒÃ—NKTER HAFTUNG'
+print(len(jim))
+jim = ['a','g','h']
+if 'w' in jim:
+    print('hello')
+
+exit()
+
+
 # tool.create_tables("Customer_Ids")
 tool.drop_tables("Sales_Orders")
 tool.create_tables("Sales_Orders")

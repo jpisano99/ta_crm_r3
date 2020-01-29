@@ -6,6 +6,7 @@ import time
 
 def test_query():
     cust_ids = Customer_Ids.query.all()
+    bookings = Bookings.query.all()
 
     for cust_id in cust_ids:
         these_alaises = cust_id.customer_aliases
@@ -23,6 +24,10 @@ def test_query():
         for a_order in these_orders:
 
             print('\t\t', a_order.so_number, a_order.my_customer_id.customer_id)
+            stan = Bookings.query.filter_by(erp_sales_order_number=a_order.so_number).all()
+            for k in stan:
+                print('\t\t\t', k.erp_sales_order_number,k.bundle_product_id)
+            #exit()
 
         print('\t\tWeb Orders ')
         for a_web_order in these_web_orders:

@@ -22,7 +22,13 @@ def scrub_new_data():
                                     (Bookings.erp_sales_order_number == "-6666") |
                                     (Bookings.erp_sales_order_number == "-7777")).all()
     for r in so_records:
-        cust_so_num = (r.erp_end_customer_name[:15]).replace(' ', '_')+r.erp_sales_order_number
+        # Create a Unique SO Number using the Customer Name
+        c_name = r.erp_end_customer_name
+        
+        c_len = len(c_name)
+        tmp1 = (c_name[0:10]).replace(' ', '_') + (c_name[c_len - 5:c_len]).replace(' ', '_')
+        cust_so_num = tmp1 + r.erp_sales_order_number
+
         r.erp_sales_order_number = cust_so_num
     db.session.commit()
 
