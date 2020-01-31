@@ -6,6 +6,25 @@ from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders
 import time
 from flask import jsonify
 
+jim = {}
+id = 123
+id2 = 345
+
+cust_data = {}
+erp_name_list = {}
+
+cust_data['global_names'] = [1,2,3]
+cust_data['erp_names'] = [10,20,30]
+cust_data['so_nums'] = ['AA','BB','CC']
+cust_data['web_ids'] = ['ZZ','XX','YY']
+
+jim[id] = cust_data
+jim[id2] = cust_data
+
+print (jim)
+exit()
+
+
 jim = 'BUNDESRECHENZENTRUM GESELLSCHAFT MIT BESCHRÃƒÃ—NKTER HAFTUNG'
 print(len(jim))
 jim = ['a','g','h']

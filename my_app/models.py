@@ -101,7 +101,7 @@ class Bookings(db.Model):
     product_id = db.Column(db.String(50))
     tms_sales_allocated_product_bookings_net = db.Column(db.Float)
     tms_sales_allocated_service_bookings_net = db.Column(db.Float)
-    hash_value = db.Column(db.String(50))
+    hash_value = db.Column(db.String(100))
     date_added = db.Column(db.DateTime)
 
 

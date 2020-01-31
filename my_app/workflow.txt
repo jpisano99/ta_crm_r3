@@ -13,3 +13,8 @@
 4 scrub_new_data.py
     Fix and Repair critical key data fiedls missing customer_ids , so_nums etc
 
+By ID ->> List of
+By Global Name
+Bu ERP Name
+By SO ->>
+By Web Order ->>

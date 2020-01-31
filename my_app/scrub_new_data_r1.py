@@ -82,14 +82,14 @@ def scrub_new_data():
     #
     # Second Step: Loop over Bookings and Build Indexes of following 3 Unique Identifiers
     #
-    cust_name_dict = {}  # {cust_name:cust_id}
-    cust_id_dict = {}  # {cust_id:cust_name}
-    cust_so_dict = {}  # {so:rec_num}
-    cust_web_id_dict = {}  # {web_id:rec_num}
-    bad_ids = ['-999']
-    bad_names = ['UNKNOWN']
-    bad_sos = ['-9999', '-7777', '-6666']
-    bad_web_ids = ['UNKNOWN']
+    # cust_name_dict = {}  # {cust_name:cust_id}
+    # cust_id_dict = {}  # {cust_id:cust_name}
+    # cust_so_dict = {}  # {so:rec_num}
+    # cust_web_id_dict = {}  # {web_id:rec_num}
+    # bad_ids = ['-999']
+    # bad_names = ['UNKNOWN']
+    # bad_sos = ['-9999', '-7777', '-6666']
+    # bad_web_ids = ['UNKNOWN']
     # #
     # # Get all Unique and Valid Cust IDs and Cust Names
     # #
@@ -103,27 +103,157 @@ def scrub_new_data():
     #     " WHERE end_customer_global_ultimate_id <> '-999' AND erp_end_customer_name <> 'UNKNOWN'"
     # sql_count = db.engine.execute(sql)
 
+    #
     # Get all UNIQUE Customer IDs, Ultimate Name, End Customer Name
+    #
     sql = "SELECT DISTINCT  end_customer_global_ultimate_id, end_customer_global_ultimate_name, erp_end_customer_name " + \
         "FROM ta_adoption_db.`Bookings` " + \
         "WHERE end_customer_global_ultimate_id <> '-999' and " + \
-        "end_customer_global_ultimate_name <> 'UNKNOWN' and " + \
-        "erp_end_customer_name <> 'UNKNOWN'"
-    print (sql)
+        "end_customer_global_ultimate_name <> 'UNKNOWN'and " + \
+        "erp_end_customer_name <> 'UNKNOWN'" + \
+        "ORDER BY end_customer_global_ultimate_id ASC"
     sql_results = db.engine.execute(sql)
 
+    cust_id_dict = {}  # {cust_id:[cust_global_name, cust_erp_name]}
+    cust_global_name_dict = {}  # {cust_global_name:[cust_id, cust_erp_name]}
+    cust_erp_name_dict = {}  # {cust_erp_name:[cust_id, cust_erp_name]}
+
+    for r in sql_results:
+        cust_id = r.end_customer_global_ultimate_id
+        cust_global_name = r.end_customer_global_ultimate_name
+        cust_erp_name = r.erp_end_customer_name
+
+        if cust_id in cust_id_dict:
+            cust_id_dict[cust_id].append([cust_global_name, cust_erp_name])
+        else:
+            cust_id_dict[cust_id] = [cust_global_name, cust_erp_name]
+
+        if cust_global_name in cust_global_name_dict:
+            cust_global_name_dict[cust_global_name].append([cust_id, cust_erp_name])
+        else:
+            cust_global_name_dict[cust_global_name] = [cust_id, cust_erp_name]
+
+        if cust_erp_name in cust_erp_name_dict:
+            cust_erp_name_dict[cust_erp_name].append([cust_id, cust_global_name])
+        else:
+            cust_erp_name_dict[cust_erp_name] = [cust_id, cust_global_name]
+
+    print('We have ', len(cust_id_dict), ' UNIQUE Customer IDs')
+    print('We have ', len(cust_global_name_dict), ' UNIQUE Global Customer names')
+    print('We have ', len(cust_erp_name_dict), ' UNIQUE ERP Customer Names')
+
+    #
     # Get all UNIQUE SO Numbers
+    #
     sql = "SELECT DISTINCT  erp_sales_order_number, end_customer_global_ultimate_id  " + \
-          "FROM ta_adoption_db.`Bookings` "
-    print (sql)
-    sql_results = db.engine.execute(sql)
+          "FROM ta_adoption_db.`Bookings` " + \
+          "WHERE end_customer_global_ultimate_id <> '-999'"
 
-    # Get all UNIQUE Web IDs
-    sql = "SELECT DISTINCT  web_order_id, end_customer_global_ultimate_id  " + \
-          "FROM ta_adoption_db.`Bookings` "
-    print (sql)
     sql_results = db.engine.execute(sql)
+    so_dict = {}
+    for r in sql_results:
+        cust_id = r.end_customer_global_ultimate_id
+        cust_so_num = r.erp_sales_order_number
+
+        so_dict[cust_so_num] = cust_id
+
+    print('We have ', len(so_dict), ' UNIQUE Sales Order IDs')
+
+    #
+    # Get all UNIQUE Web IDs
+    #
+    sql = "SELECT DISTINCT  web_order_id, end_customer_global_ultimate_id  " + \
+          "FROM ta_adoption_db.`Bookings` " + \
+          "WHERE end_customer_global_ultimate_id <> '-999'"
+    sql_results = db.engine.execute(sql)
+    web_order_dict = {}
+    for r in sql_results:
+        cust_id = r.end_customer_global_ultimate_id
+        cust_web_id = r.web_order_id
+        web_order_dict[cust_web_id] = cust_id
+    print('We have ', len(web_order_dict), ' UNIQUE Web Order IDs')
+
+    #
+    # Loop over each line in Bookings
+    #
+    bad_ids = ['-999']
+    bad_global_names = ['UNKNOWN', 'DISTRIBUTOR OFFSET', 'DISTI STOCK']
+    bad_erp_names = ['UNKNOWN']
+    bad_sos = ['-9999', '-7777', '-6666']
+    bad_web_ids = ['UNKNOWN']
+    my_bookings = Bookings.query.order_by(Bookings.id.asc())
+    for r in my_bookings:
+        rec_num = r.id
+        cust_id = r.end_customer_global_ultimate_id
+        cust_global_name = r.end_customer_global_ultimate_name
+        cust_erp_name = r.erp_end_customer_name
+        cust_so_num = r.erp_sales_order_number
+        cust_web_id = r.web_order_id
+        repairs = ''
+        print(rec_num, cust_id, cust_global_name, cust_erp_name)
+
+        if cust_id in bad_ids and \
+           cust_global_name in bad_global_names and \
+           cust_erp_name in bad_erp_names:
+            print('all bad')
+            continue
+
+        #
+        # Check and repair customer ID
+        if cust_id in bad_ids:
+            if cust_global_name not in bad_global_names and cust_global_name in cust_global_name_dict:
+                print('global', cust_global_name_dict[cust_global_name][0])
+                r.end_customer_global_ultimate_id = cust_global_name_dict[cust_global_name][0]
+                repairs = "REPAIRED ID with Global Name Dict" + ' / ' + repairs
+            elif cust_erp_name not in bad_erp_names and cust_erp_name in cust_erp_name_dict:
+                print('erp', cust_erp_name_dict[cust_erp_name][0])
+                r.end_customer_global_ultimate_id = cust_erp_name_dict[cust_erp_name][0]
+                repairs = "REPAIRED ID with ERP Name Dict" + ' / ' + repairs
+            else:
+                print('No ID found for ', cust_global_name, cust_erp_name)
+                repairs = "Could NOT Repair ID" + ' / ' + repairs
+
+        # Check and repair Global Name
+        if cust_global_name in bad_global_names:
+            if cust_id not in bad_ids and cust_id in cust_id_dict:
+                print('found by id', cust_id_dict[cust_id][0])
+                r.end_customer_global_ultimate_name = cust_id_dict[cust_id][0]
+                repairs = "REPAIRED Global Name with ID Dict"  + ' / ' + repairs
+            elif cust_erp_name not in bad_erp_names and cust_erp_name in cust_erp_name_dict:
+                print('erp', cust_erp_name_dict[cust_erp_name][1])
+                r.end_customer_global_ultimate_name = cust_erp_name_dict[cust_erp_name][1]
+                repairs = "REPAIRED Global Name with ERP Name Dict"  + ' / ' + repairs
+            else:
+                print('No Global Name found for ', cust_global_name, cust_erp_name)
+                repairs = "Could NOT Repair Global Name" + ' / ' + repairs
+
+        # Check and repair ERP Name
+        if cust_erp_name in bad_erp_names:
+            if cust_id not in bad_ids and cust_id in cust_id_dict:
+                print('found by id', cust_id_dict[cust_id][1])
+                r.erp_end_customer_name = cust_id_dict[cust_id][1]
+                repairs = "REPAIRED ERP Name with ID Dict" + ' / ' + repairs
+                input("Press Enter to continue...")
+
+
+            elif cust_global_name not in bad_global_names and cust_global_name in cust_global_name_dict:
+                print('global name', cust_global_name_dict[cust_global_name][1])
+                r.erp_end_customer_name = cust_global_name_dict[cust_global_name][1]
+                repairs = "REPAIRED ERP Name with Global Name Dict" + ' / ' + repairs
+                input("Press Enter to continue...")
+            else:
+                print('No ERP Name found for ', cust_global_name, cust_erp_name)
+                repairs = "Could NOT Repair ERP Name" + ' / ' + repairs
+                input("Press Enter to continue...")
+
+        r.hash_value = repairs
+        # time.sleep(.25)
+
+    db.session.commit()
     exit()
+
+
+
 
 
     #
