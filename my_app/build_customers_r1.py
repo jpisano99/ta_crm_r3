@@ -519,7 +519,7 @@ def main():
     #         print (my_col, type(my_col))
     #     time.sleep(.1)
     # exit()
-    tool.push_list_to_xls(magic_list, 'magic.xlsx')
+    tool.push_list_to_xls(magic_list, app_cfg['XLS_DASHBOARD'])
 
     #
     # Create a simple contact list for CX usage
