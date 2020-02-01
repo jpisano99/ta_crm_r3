@@ -36,8 +36,8 @@ app_cfg = dict(
     #
     # Testing
     #
-    XLS_ROSETTA='TA Telemetry as of 1-31-20.xlsx',
-    XLS_SAAS_NAMES='TA SaaS Customer Tracking as of 1-31-20.xlsx',
+    XLS_TELEMETRY='TA Telemetry as of 1-31-20.xlsx',
+    XLS_SAAS_TRACKING='TA SaaS customer tracking DO NOT DELETE master.xlsx',
     XLS_UNIQUE_CUSTOMERS='tmp_unique_customer_names.xlsx',
 
     # SmartSheet Sheets and Names

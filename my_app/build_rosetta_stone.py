@@ -1,6 +1,5 @@
 import my_app.tool_box as tool
 from my_app.settings import app_cfg
-from fuzzywuzzy import fuzz
 import xlrd
 from datetime import datetime
 import datetime
@@ -9,23 +8,24 @@ import time
 #
 # Get All Customer names and VRFs from Ravi's Sheet
 #
-saas_name_dict={}
-rs_wb, rs_ws = tool.open_wb(app_cfg['XLS_ROSETTA'])
-print('SaaS Platform Customers', rs_ws.nrows)
-for row in range(1, rs_ws.nrows):
-    saas_platform_name = rs_ws.cell_value(row, 0)
-    saas_vrf_number = str(int(rs_ws.cell_value(row, 1)))
-    saas_num_of_licenses = str(int(rs_ws.cell_value(row, 3)))
-    saas_actual_sensors_installed = str(int(rs_ws.cell_value(row, 4)))
-    saas_inactive_agents = str(int(rs_ws.cell_value(row, 5)))
+telemetry_dict={}
+telemetry_wb, telemetry_ws = tool.open_wb(app_cfg['XLS_TELEMETRY'])
+print('Telemetry Customers Reporting', telemetry_ws.nrows)
+for row in range(1, telemetry_ws.nrows):
+    telemetry_name = telemetry_ws.cell_value(row, 0)
+    telemetry_vrf_number = str(int(telemetry_ws.cell_value(row, 2)))
+    telemetry_num_of_licenses = str(int(telemetry_ws.cell_value(row, 3)))
+    telemetry_actual_sensors_installed = str(int(telemetry_ws.cell_value(row, 4)))
+    telemetry_inactive_agents = str(int(telemetry_ws.cell_value(row, 5)))
 
-    saas_name_dict[saas_platform_name] = [saas_vrf_number, saas_num_of_licenses,
-                                          saas_actual_sensors_installed, saas_inactive_agents]
+    telemetry_dict[telemetry_name] = [telemetry_vrf_number, telemetry_num_of_licenses,
+                                          telemetry_actual_sensors_installed, telemetry_inactive_agents]
+
 
 #
 # Get ALL subscriptions and Customer Names from Subscription Report
 #
-sub_dict={}
+sub_dict = {}
 sub_wb, sub_ws = tool.open_wb(app_cfg['XLS_SUBSCRIPTIONS'])
 print(sub_ws.nrows)
 for row in range(1, sub_ws.nrows):
@@ -38,7 +38,6 @@ for row in range(1, sub_ws.nrows):
         # print(sub_renewal_date, type(sub_renewal_date))
 
     sub_dict[sub_web_order] = [sub_cust_name, sub_renewal_date]
-print(sub_dict)
 
 
 #
@@ -59,39 +58,49 @@ for row in range(1, magic_ws.nrows):
     magic_dict[magic_cust_name] = [magic_as_pid, magic_pss, magic_tsa, magic_as_dm]
 
 #
-# Get ALL items from Nirali SAAS tracking sheet
+# Get ALL items from SAAS tracking sheet
 #
-nirali_dict = {}
-nirali_wb, nirali_ws = tool.open_wb(app_cfg['XLS_SAAS_NAMES'])
-print(nirali_ws.nrows)
-for row in range(1, nirali_ws.nrows):
-    nirali_name = nirali_ws.cell_value(row, 1)
-    nirali_so_number = nirali_ws.cell_value(row, 2)
-    nirali_start_date = nirali_ws.cell_value(row, 3)
+saas_tracking_dict = {}
+saas_tracking_wb, saas_tracking_ws = tool.open_wb(app_cfg['XLS_SAAS_TRACKING'])
+print(saas_tracking_ws.nrows)
+for row in range(1, saas_tracking_ws.nrows):
+    saas_tracking_name = saas_tracking_ws.cell_value(row, 2)
+    saas_cust_id = saas_tracking_ws.cell_value(row, 3)
+    saas_telemetry_name = saas_tracking_ws.cell_value(row, 4)
+    saas_tracking_so_number = saas_tracking_ws.cell_value(row, 6)
+    saas_tracking_start_date = saas_tracking_ws.cell_value(row, 7)
 
-    if nirali_ws.cell_type(row, 3) == xlrd.XL_CELL_DATE:
-        nirali_start_date = datetime.datetime(*xlrd.xldate_as_tuple(nirali_start_date, nirali_wb.datemode))
-        # print(nirali_start_date, type(nirali_start_date))
+    if saas_tracking_ws.cell_type(row, 7) == xlrd.XL_CELL_DATE:
+        saas_tracking_start_date = datetime.datetime(*xlrd.xldate_as_tuple(saas_tracking_start_date, saas_tracking_wb.datemode))
+        # print(saas_tracking_start_date, type(saas_tracking_start_date))
 
-    if type(nirali_so_number) is float:
-        tmp_int = int(nirali_so_number)
-        nirali_so_number = str(tmp_int)
+    if type(saas_tracking_so_number) is float:
+        tmp_int = int(saas_tracking_so_number)
+        saas_tracking_so_number = str(tmp_int)
 
-    nirali_dict[nirali_name] = [nirali_so_number, nirali_start_date]
+    if type(saas_cust_id) is float:
+        tmp_int = int(saas_cust_id)
+        saas_cust_id = str(tmp_int)
+    saas_tracking_dict[saas_telemetry_name] = [saas_tracking_name, saas_cust_id, saas_tracking_so_number, saas_tracking_start_date]
 
-#
-# Get ALL Unique customer Names and ID's from Bookings data
-#
-cust_dict = {}
-cust_wb, cust_ws = tool.open_wb(app_cfg['XLS_UNIQUE_CUSTOMERS'])
-print(cust_ws.nrows)
-for row in range(1, cust_ws.nrows):
-    cust_name = cust_ws.cell_value(row, 0)
-    cust_id = str(cust_ws.cell_value(row, 1))
-    # print(cust_name, cust_id)
-    # print(cust_name)
-    cust_dict[cust_name] = cust_id
 
+# #
+# # Get ALL Unique customer Names and ID's from Bookings data
+# #
+# cust_dict = {}
+# cust_wb, cust_ws = tool.open_wb(app_cfg['XLS_UNIQUE_CUSTOMERS'])
+# print(cust_ws.nrows)
+# for row in range(1, cust_ws.nrows):
+#     cust_name = cust_ws.cell_value(row, 0)
+#     cust_id = str(cust_ws.cell_value(row, 1))
+#     # print(cust_name, cust_id)
+#     # print(cust_name)
+#     cust_dict[cust_name] = cust_id
+
+
+print(telemetry_dict)
+print(sub_dict)
+print(magic_dict)
 
 print()
 print('*********************************')
@@ -99,28 +108,24 @@ print('*********************************')
 # Perform a fuzzy match search against all customer aliases in Nirali's Sheet vs Ravi's Platform Sheet
 #
 my_list = []
-# my_list.append(['ravi_name', 'ravi_vrf_number', 'num_of_lic', 'sensors installed','inactive agents',
-#                 'best_match_nirali_cust_name', 'best_match_nirali_so_num', 'match_score',
-#                'nirali Req Start Date', 'subscription renewal date',
-#                 'subscription_order_num', 'customer_id', 'PSS', 'TSA', 'CX Engineer','CX Status'])
-my_list.append(['Customer Name',  'SaaS Name', 'SaaS VRF', 'Num Of Licenses ', 'Sensors Installed', 'Inactive Agents',
+my_list.append(['Customer Name',  'telemetry Name', 'telemetry VRF', 'Num Of Licenses ', 'Sensors Installed', 'Inactive Agents',
                 '% Installed', '% Active', 'Sub Order Num', 'Fuzzy Score',
                 'Req Start Date', 'Renewal Date', 'Days to Renew',
                 'PSS', 'TSA', 'CX PID', 'CX Delivery Manager', 'Customer ID' ])
-for saas_platform_name, saas_info in saas_name_dict.items():
-    saas_vrf_number = saas_info[0]
-    saas_num_of_licenses = saas_info[1]
-    saas_actual_sensors_installed = saas_info[2]
-    saas_inactive_agents = saas_info[3]
-    pct_installed = ''
-    pct_active = ''
-    if int(saas_num_of_licenses) != 0:
-        pct_installed = int(saas_actual_sensors_installed) / int(saas_num_of_licenses)
-        pct_active = (int(saas_actual_sensors_installed) - int(saas_inactive_agents)) / int(saas_num_of_licenses)
+for telemetry_name, telemetry_info in telemetry_dict.items():
+    telemetry_vrf_number = telemetry_info[0]
+    telemetry_num_of_licenses = telemetry_info[1]
+    telemetry_actual_sensors_installed = telemetry_info[2]
+    telemetry_inactive_agents = telemetry_info[3]
 
-    best_match = 0
-    possible_cust = ''
-    possible_so = ''
+    if telemetry_name in saas_tracking_dict:
+        cust_name = saas_tracking_dict[telemetry_name][0]
+        cust_id = saas_tracking_dict[telemetry_name][1]
+        sub_so_num = saas_tracking_dict[telemetry_name][2]
+        sub_start_date = saas_tracking_dict[telemetry_name][3]
+        # print(cust_name, cust_id, sub_start_date)
+        # exit()
+
     req_start_date = ''
     sub_renewal_date = ''
     days_to_renew = ''
@@ -129,43 +134,30 @@ for saas_platform_name, saas_info in saas_name_dict.items():
     as_pid = ''
     as_dm = ''
 
-    for nirali_name, nirali_info in nirali_dict.items():
-        # match_ratio = fuzz.ratio(saas_platform_name, nirali_name)
-        match_ratio = fuzz.partial_ratio(saas_platform_name, nirali_name)
-        if match_ratio > best_match:
-            possible_cust = nirali_name
-            possible_so = nirali_info[0]
-            req_start_date = nirali_info[1]
-            best_match = match_ratio
+    # Some calculations
+    pct_installed = ''
+    pct_active = ''
+    if int(telemetry_num_of_licenses) != 0:
+        pct_installed = int(telemetry_actual_sensors_installed) / int(telemetry_num_of_licenses)
+        pct_active = (int(telemetry_actual_sensors_installed) - int(telemetry_inactive_agents)) / int(telemetry_num_of_licenses)
 
-    if possible_cust in cust_dict:
-        cust_id= cust_dict[possible_cust]
-    else:
-        cust_id = 'ID NOT Found'
-
-    if possible_cust in magic_dict:
-        pss = magic_dict[possible_cust][1]
-        tsa = magic_dict[possible_cust][2]
-        as_pid = magic_dict[possible_cust][0]
-        as_dm = magic_dict[possible_cust][3]
-
+    # Look up from dashboard
+    if cust_name in magic_dict:
+        pss = magic_dict[cust_name][1]
+        tsa = magic_dict[cust_name][2]
+        as_pid = magic_dict[cust_name][0]
+        as_dm = magic_dict[cust_name][3]
         # [magic_as_pid, magic_pss, magic_tsa, magic_as_dm]
     else:
         cust_id = 'ID NOT Found in Bookings Sheet'
-
-    if possible_so in sub_dict:
-        sub_cust_name = sub_dict[possible_so][0]
-        sub_renewal_date = sub_dict[possible_so][1]
-    else:
-        sub_cust_name = 'SO NOT Found in Subscription Sheet'
 
     # Calc Days to renew
     if isinstance(req_start_date, datetime.datetime) and isinstance(sub_renewal_date, datetime.datetime):
         now = datetime.datetime.now()
         days_to_renew = (sub_renewal_date - now).days
 
-    my_list.append([possible_cust, saas_platform_name, saas_vrf_number, saas_num_of_licenses, saas_actual_sensors_installed, saas_inactive_agents,
-                    pct_installed, pct_active, possible_so, best_match, req_start_date,
+    my_list.append([cust_name, telemetry_name, telemetry_vrf_number, telemetry_num_of_licenses, telemetry_actual_sensors_installed, telemetry_inactive_agents,
+                    pct_installed, pct_active, sub_so_num, 'TBD', req_start_date,
                     sub_renewal_date, days_to_renew, pss, tsa, as_pid, as_dm, cust_id])
     # print(saas_platform_name, possible_cust, best_match)
     # time.sleep(.5)
