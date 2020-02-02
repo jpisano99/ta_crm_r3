@@ -39,6 +39,7 @@ app_cfg = dict(
     XLS_TELEMETRY='TA Telemetry as of 1-31-20.xlsx',
     XLS_SAAS_TRACKING='TA SaaS customer tracking DO NOT DELETE master.xlsx',
     XLS_UNIQUE_CUSTOMERS='tmp_unique_customer_names.xlsx',
+    XLS_EN_AGREEMENTS = 'TA Enteprise Agreements as of 2-2-20.xlsx',
 
     # SmartSheet Sheets and Names
     SS_SAAS='SaaS customer tracking',
