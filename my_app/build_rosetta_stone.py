@@ -129,7 +129,7 @@ print()
 
 my_list = []
 my_list.append(['Customer Name',  'Telemetry Name', 'Telemetry VRF', 'Num Of Licenses ', 'Sensors Installed', 'Inactive Agents',
-                '% Installed', '% Active', 'Sub Order Num', ' Sub Term', 'Sub Status',
+                '% Installed', '% Active', 'Adoption Factor','Sub Order Num', ' Sub Term', 'Sub Status',
                 'Req Start Date', 'Renewal Date', 'Days to Renew',
                 'PSS', 'TSA', 'Sales Lv 1', 'Sales Lv 2', 'CX PID', 'CX Delivery Manager', 'Customer ID'])
 
@@ -196,19 +196,33 @@ for telemetry_name, telemetry_info in telemetry_dict.items():
         pct_installed = int(telemetry_actual_sensors_installed) / int(telemetry_num_of_licenses)
         pct_active = (int(telemetry_actual_sensors_installed) - int(telemetry_inactive_agents)) / int(telemetry_num_of_licenses)
 
-        pct_installed = str(round((pct_installed * 100), 1)) + '%'
-        pct_active = str(round((pct_active * 100), 1)) + '%'
+
 
     # Calc Days to renew
     days_to_renew = ''
     now = datetime.datetime.now()
+    adoption_factor = ''
     if isinstance(req_start_date, datetime.datetime) and isinstance(sub_renewal_date, datetime.datetime):
         days_to_renew = (sub_renewal_date - now).days
+
+        sub_days_total = int(sub_term) * 30
+        sub_days_active = sub_days_total - days_to_renew
+
+        pct_sub_expired = sub_days_active/sub_days_total
+        print(sub_renewal_date, sub_days_total,sub_days_active, days_to_renew, pct_sub_expired)
+        adoption_factor = (pct_active / pct_sub_expired) * 100
+        print()
+        print(pct_active, adoption_factor)
+
+        pct_installed = str(round((pct_installed * 100), 1)) + '%'
+        pct_active = str(round((pct_active * 100), 1)) + '%'
+
+
 
     # Build the output row
     my_list.append([cust_name, telemetry_name, telemetry_vrf_number, telemetry_num_of_licenses,
                     telemetry_actual_sensors_installed, telemetry_inactive_agents,
-                    pct_installed, pct_active, sub_so_num, sub_term, sub_status, req_start_date,
+                    pct_installed, pct_active, adoption_factor, sub_so_num, sub_term, sub_status, req_start_date,
                     sub_renewal_date, days_to_renew, pss, tsa, sales_lv_1, sales_lv_2, as_pid, as_dm, cust_id])
 
 tool.push_list_to_xls(my_list, 'tmp_rosetta_stone.xlsx')
