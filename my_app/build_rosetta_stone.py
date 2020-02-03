@@ -14,9 +14,9 @@ print('Telemetry Customers Reporting', telemetry_ws.nrows)
 for row in range(1, telemetry_ws.nrows):
     telemetry_name = telemetry_ws.cell_value(row, 0)
     telemetry_vrf_number = str(int(telemetry_ws.cell_value(row, 2)))
-    telemetry_num_of_licenses = str(int(telemetry_ws.cell_value(row, 3)))
-    telemetry_actual_sensors_installed = str(int(telemetry_ws.cell_value(row, 4)))
-    telemetry_inactive_agents = str(int(telemetry_ws.cell_value(row, 5)))
+    telemetry_num_of_licenses = telemetry_ws.cell_value(row, 3)
+    telemetry_actual_sensors_installed = telemetry_ws.cell_value(row, 4)
+    telemetry_inactive_agents = telemetry_ws.cell_value(row, 5)
 
     telemetry_dict[telemetry_name] = [telemetry_vrf_number, telemetry_num_of_licenses,
                                           telemetry_actual_sensors_installed, telemetry_inactive_agents]
@@ -128,10 +128,18 @@ print('**************BUILD THE SHEET*******************')
 print()
 
 my_list = []
-my_list.append(['Customer Name',  'Telemetry Name', 'Telemetry VRF', 'Num Of Licenses ', 'Sensors Installed', 'Inactive Agents',
-                '% Installed', '% Active', 'Adoption Factor','Sub Order Num', ' Sub Term', 'Sub Status',
-                'Req Start Date', 'Renewal Date', 'Days to Renew',
-                'PSS', 'TSA', 'Sales Lv 1', 'Sales Lv 2', 'CX PID', 'CX Delivery Manager', 'Customer ID'])
+# my_list.append(['Customer Name',  'Telemetry Name', 'Telemetry VRF', 'Num Of Licenses ', 'Sensors Installed', 'Active Agents',
+#                 '% Installed', '% Active', 'Adoption Factor','Sub Order Num', ' Sub Term', 'Sub Status',
+#                 'Req Start Date', 'Renewal Date', 'Days to Renew',
+#                 'PSS', 'TSA', 'Sales Lv 1', 'Sales Lv 2', 'CX PID', 'CX Delivery Manager', 'Customer ID'])
+as_of_date = '2/3/20'
+my_list.append(['Customer Name', 'Num Of Licenses ', '% of Sensors Installed', '% of Active Sensors',
+                'Adoption Factor' + '\n' + '(% Active Sensors : % of Subscription Consumed)' + '\n' + ' as of '+as_of_date,
+                'Subscription Term', 'Subscription Status', 'Days to Renew',
+                'PSS', 'TSA', 'Sales Lv 1', 'Sales Lv 2',
+                'Telemetry Name', 'Telemetry VRF',  'Sensors Installed', 'Active Agents',
+                'Sub Order Num', 'Req Start Date', 'Renewal Date',
+                 'CX PID', 'CX Delivery Manager', 'Customer ID'])
 
 for telemetry_name, telemetry_info in telemetry_dict.items():
     telemetry_vrf_number = telemetry_info[0]
@@ -185,18 +193,18 @@ for telemetry_name, telemetry_info in telemetry_dict.items():
         tsa = magic_dict[cust_name][2]
         sales_lv_1 = magic_dict[cust_name][3]
         sales_lv_2 = magic_dict[cust_name][4]
-        as_dm = magic_dict[cust_name][3]
+        as_dm = magic_dict[cust_name][5]
     else:
         cust_id = 'ID NOT Found in Bookings Sheet'
 
     # Calc Sensor Utilization
     pct_installed = ''
     pct_active = ''
+    telemetry_active_agents = ''
     if int(telemetry_num_of_licenses) != 0:
-        pct_installed = int(telemetry_actual_sensors_installed) / int(telemetry_num_of_licenses)
-        pct_active = (int(telemetry_actual_sensors_installed) - int(telemetry_inactive_agents)) / int(telemetry_num_of_licenses)
-
-
+        telemetry_active_agents = telemetry_actual_sensors_installed - telemetry_inactive_agents
+        pct_installed = telemetry_actual_sensors_installed / telemetry_num_of_licenses
+        pct_active = telemetry_active_agents / telemetry_num_of_licenses
 
     # Calc Days to renew
     days_to_renew = ''
@@ -209,21 +217,43 @@ for telemetry_name, telemetry_info in telemetry_dict.items():
         sub_days_active = sub_days_total - days_to_renew
 
         pct_sub_expired = sub_days_active/sub_days_total
-        print(sub_renewal_date, sub_days_total,sub_days_active, days_to_renew, pct_sub_expired)
-        adoption_factor = (pct_active / pct_sub_expired) * 100
-        print()
-        print(pct_active, adoption_factor)
+        print(cust_name, sub_days_total, sub_days_active, days_to_renew, pct_sub_expired)
+        adoption_factor = (pct_active / pct_sub_expired)
+        # print()
+        # print(pct_active, adoption_factor)
+        # exit()
+
+        telemetry_num_of_licenses = str(int(telemetry_num_of_licenses))
+        telemetry_actual_sensors_installed = str(int(telemetry_actual_sensors_installed))
+        telemetry_active_agents = str(int(telemetry_active_agents))
 
         pct_installed = str(round((pct_installed * 100), 1)) + '%'
         pct_active = str(round((pct_active * 100), 1)) + '%'
-
-
+        adoption_factor = str(round(adoption_factor, 2))
 
     # Build the output row
-    my_list.append([cust_name, telemetry_name, telemetry_vrf_number, telemetry_num_of_licenses,
-                    telemetry_actual_sensors_installed, telemetry_inactive_agents,
-                    pct_installed, pct_active, adoption_factor, sub_so_num, sub_term, sub_status, req_start_date,
-                    sub_renewal_date, days_to_renew, pss, tsa, sales_lv_1, sales_lv_2, as_pid, as_dm, cust_id])
+    my_list.append([cust_name, telemetry_num_of_licenses, pct_installed, pct_active,
+                    adoption_factor,
+                    sub_term, sub_status, days_to_renew,
+                    pss, tsa, sales_lv_1, sales_lv_2,
+                    telemetry_name, telemetry_vrf_number,
+                    telemetry_actual_sensors_installed, telemetry_active_agents,
+                    sub_so_num, req_start_date, sub_renewal_date,
+                    as_pid, as_dm, cust_id])
+
+# my_list.append(['Customer Name', 'Num Of Licenses ', '% of Sensors Installed', '% of Active Sensros',
+#                 'Adoption Factor (% Active Sensors:% of Subscription Consumed as of',
+#                 'Subscription Term', 'Subscription Status', 'Days to Renew',
+#                 'PSS', 'TSA', 'Sales Lv 1', 'Sales Lv 2',
+#                 'Telemetry Name', 'Telemetry VRF',  'Sensors Installed', 'Active Agents',
+#                 'Sub Order Num', 'Req Start Date', 'Renewal Date',
+#                  'CX PID', 'CX Delivery Manager', 'Customer ID'])
+
+# my_list.append([cust_name, telemetry_name, telemetry_vrf_number,
+#                 telemetry_actual_sensors_installed, telemetry_active_agents,
+#                 pct_installed, pct_active, adoption_factor, sub_so_num, sub_term, sub_status, req_start_date,
+#                 sub_renewal_date, days_to_renew, pss, tsa, sales_lv_1, sales_lv_2, as_pid, as_dm, cust_id])
+
 
 tool.push_list_to_xls(my_list, 'tmp_rosetta_stone.xlsx')
 
