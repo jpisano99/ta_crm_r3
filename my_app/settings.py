@@ -24,6 +24,8 @@ app_cfg = dict(
     RAW_SUBSCRIPTIONS='TA Master Subscriptions as of',
     RAW_BOOKINGS='TA Master Bookings with SO as of',
     RAW_TA_AS_FIXED_SKU='TA AS Delivery Status as of',
+    RAW_TELEMETRY_DR='TA SPOCK_sensor_sum as of',
+    RAW_TELEMETRY_NON_DR='TA STROM_sensor_sum as of',
 
     # Scrubbed Data Working Files
     XLS_SUBSCRIPTIONS='tmp_Master Subscriptions.xlsx',
@@ -32,14 +34,14 @@ app_cfg = dict(
     XLS_AS_SKUS='tmp_TA AS SKUs.xlsx',
     XLS_CUSTOMER='tmp_TA Customer List.xlsx',
     XLS_DASHBOARD='tmp_TA Unified Adoption Dashboard.xlsx',
+    XLS_TELEMETRY='tmp_TA_telemetry.xlsx',
 
     #
     # Testing
     #
-    XLS_TELEMETRY='TA Telemetry as of 1-31-20.xlsx',
-    XLS_SAAS_TRACKING='TA SaaS customer tracking DO NOT DELETE master.xlsx',
+    XLS_SAAS_TRACKING='TA SaaS Customer Tracking as of 02-03-20.xlsx',
     XLS_UNIQUE_CUSTOMERS='tmp_unique_customer_names.xlsx',
-    XLS_EN_AGREEMENTS = 'TA Enteprise Agreements as of 2-2-20.xlsx',
+    XLS_EN_AGREEMENTS = 'TA Enterprise Agreements as of 02-03-20.xlsx',
 
     # SmartSheet Sheets and Names
     SS_SAAS='SaaS customer tracking',

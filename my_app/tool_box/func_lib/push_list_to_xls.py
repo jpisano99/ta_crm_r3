@@ -33,17 +33,35 @@ def push_list_to_xls(my_list, excel_file, run_dir=app_cfg['UPDATES_SUB_DIR'], tb
     # # cell_format.set_font_color('red')
 
     xls_money = workbook.add_format({'num_format': '$#,##0'})
+    xls_pct = workbook.add_format({'num_format': '0.0%'})
     xls_date = workbook.add_format({'num_format': 'mm / dd/ yyyy'})
 
     for row_num, my_row in enumerate(my_list):
         for col_num, cell_val in enumerate(my_row):
+            # What type of cell are we writing ?
             if type(cell_val) is float:
+                # ANY float will be written as a dollar format
                 worksheet.write(row_num, col_num, cell_val, xls_money)
+            elif type(cell_val) is int:
+                # Just a plain old int
+                worksheet.write(row_num, col_num, cell_val)
             elif isinstance(cell_val, datetime.datetime):
+                # A python datetime
                 worksheet.write(row_num, col_num, cell_val, xls_date)
             else:
-                # worksheet.write(row_num, col_num, cell_val, cell_format)
-                worksheet.write(row_num, col_num, cell_val)
+                # Looks like we have a string type
+                # Look for a format indicator (_%_ for pct)
+                # Generic format to write a cell worksheet.write(row_num, col_num, cell_val, cell_format)
+                if cell_val.find('_%_') != -1:
+                    cell_val = float(cell_val.replace('_%_', '',))
+                    worksheet.write(row_num, col_num, cell_val, xls_pct)
+                elif cell_val.find('_non$_') != -1:
+                    # Looks like we have a non dollar float
+                    cell_val = float(cell_val.replace('_non$_', '',))
+                    worksheet.write(row_num, col_num, cell_val)
+                else:
+                    # Just write whatever string we have no format specified
+                    worksheet.write(row_num, col_num, cell_val)
 
     # Prep the header row for our table
     header_row = my_list[0]

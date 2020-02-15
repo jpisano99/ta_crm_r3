@@ -174,6 +174,37 @@ class Web_Orders(db.Model):
     web_order_id = db.Column(db.String(50))
     customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
 
+class Telemetry(db.Model):
+    __tablename__ = 'telemetry'
+
+    id = db.Column(db.Integer(), primary_key=True)
+
+    name = db.Column(db.String(25))
+    type = db.Column(db.String(10))
+    vrf = db.Column(db.Integer)
+    licensed = db.Column(db.Integer)
+    installed = db.Column(db.Integer)
+    inactive = db.Column(db.Integer)
+    autoupg = db.Column(db.Integer)
+    windows = db.Column(db.Integer)
+    linux = db.Column(db.Integer)
+    aix = db.Column(db.Integer)
+    lightwt = db.Column(db.Integer)
+    legacy = db.Column(db.Integer)
+    deepvis = db.Column(db.Integer)
+    enforce = db.Column(db.Integer)
+    enforce_enabled = db.Column(db.Integer)
+    pid_enabled = db.Column(db.Integer)
+    forensics_enabled = db.Column(db.Integer)
+    inventory = db.Column(db.Integer)
+    anyconnect = db.Column(db.Integer)
+    anyproxy = db.Column(db.Integer)
+    erspan = db.Column(db.Integer)
+    f5 = db.Column(db.Integer)
+    netflow = db.Column(db.Integer)
+    netscaler = db.Column(db.Integer)
+    others = db.Column(db.Integer)
+
 
 class Test_Table(db.Model):
     __tablename__ = 'test_table'

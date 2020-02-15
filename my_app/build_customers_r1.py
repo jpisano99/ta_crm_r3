@@ -489,14 +489,17 @@ def main():
                             as_scheduled_end = as_ws.cell_value(row_num, 27)
                             as_project_created = as_ws.cell_value(row_num, 28)
 
-                            year, month, day, hour, minute, second = xlrd.xldate_as_tuple(as_project_start, as_wb.datemode)
-                            as_project_start = datetime(year, month, day)
+                            if isinstance(as_project_start,float):
+                                year, month, day, hour, minute, second = xlrd.xldate_as_tuple(as_project_start, as_wb.datemode)
+                                as_project_start = datetime(year, month, day)
 
-                            year, month, day, hour, minute, second = xlrd.xldate_as_tuple(as_scheduled_end, as_wb.datemode)
-                            as_scheduled_end = datetime(year, month, day)
+                            if isinstance(as_scheduled_end, float):
+                                year, month, day, hour, minute, second = xlrd.xldate_as_tuple(as_scheduled_end, as_wb.datemode)
+                                as_scheduled_end = datetime(year, month, day)
 
-                            year, month, day, hour, minute, second = xlrd.xldate_as_tuple(as_project_created, as_wb.datemode)
-                            as_project_created = datetime(year, month, day)
+                            if isinstance(as_project_created, float):
+                                year, month, day, hour, minute, second = xlrd.xldate_as_tuple(as_project_created, as_wb.datemode)
+                                as_project_created = datetime(year, month, day)
                             break
 
                     if isinstance(billing_start_date, datetime) and isinstance(as_project_start, datetime):

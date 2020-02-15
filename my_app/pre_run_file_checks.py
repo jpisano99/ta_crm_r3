@@ -2,12 +2,14 @@ import os
 import json
 import time
 import xlrd
+import pprint
 from datetime import datetime
 from my_app.settings import app_cfg
 import my_app.tool_box as tool
 
 
 def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
+    pp = pprint.PrettyPrinter(indent=4, depth=2)
     home = os.path.join(app_cfg['HOME'], app_cfg['MOUNT_POINT'], app_cfg['MY_APP_DIR'])
     working_dir = app_cfg['WORKING_SUB_DIR']
     update_dir = app_cfg['UPDATES_SUB_DIR']
@@ -109,6 +111,8 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
     bookings = []
     subscriptions = []
     as_status = []
+    telemetry_spock = []
+    telemetry_strom = []
     print()
     print('We are processing files:')
 
@@ -142,6 +146,16 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
             for row in range(0, my_ws.nrows):
                 subscriptions.append(my_ws.row_slice(row))
 
+        elif file_name.find('SPOCK_sensor_sum') != -1:
+            # This raw sheet starts on row num 0
+            for row in range(0, my_ws.nrows):
+                telemetry_spock.append(my_ws.row_slice(row))
+
+        elif file_name.find('STROM_sensor_sum') != -1:
+            # This raw sheet starts on row num 0
+            for row in range(0, my_ws.nrows):
+                telemetry_strom.append(my_ws.row_slice(row))
+
         elif file_name.find('AS Delivery Status') != -1:
             # This AS-F raw sheet starts on row num 0
             # Grab the header row
@@ -150,13 +164,16 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 # Check to see if this is a TA SKU
                 if my_ws.cell_value(row, 14) in sku_filter_dict:
                     as_status.append(my_ws.row_slice(row))
+    #
+    # All raw data now read in
 
+    # Start scrubbing the raw data
+    # Scrub Subscriptions
     # For the Subscriptions sheet we need to convert
     # col 9 & 11 to DATE from STR
     # col 13 (monthly rev) to FLOAT from STR
     #
     subscriptions_scrubbed = []
-
     for row_num, my_row in enumerate(subscriptions):
         my_new_row = []
 
@@ -180,7 +197,9 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
             my_new_row.append(tmp_val)
         subscriptions_scrubbed.append(my_new_row)
 
+    #
     # Now Scrub AS Delivery Info
+    #
     as_status_scrubbed = []
     for row_num, my_row in enumerate(as_status):
         my_new_row = []
@@ -193,11 +212,11 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 tmp_val = str(int(my_cell.value))
             elif col_num == 19:  # SO Number
                 tmp_val = str(int(my_cell.value))
-            elif col_num == 26:  # Project Start Date
+            elif col_num == 26 and my_cell.ctype == xlrd.XL_CELL_DATE:  # Project Start Date
                 tmp_val = datetime(*xlrd.xldate_as_tuple(my_cell.value, my_wb.datemode))
-            elif col_num == 27:  # Scheduled End Date
+            elif col_num == 27 and my_cell.ctype == xlrd.XL_CELL_DATE:  # Scheduled End Date
                 tmp_val = datetime(*xlrd.xldate_as_tuple(my_cell.value, my_wb.datemode))
-            elif col_num == 28:  # Project Creation Date
+            elif col_num == 28 and my_cell.ctype == xlrd.XL_CELL_DATE:  # Project Creation Date
                 tmp_val = datetime(*xlrd.xldate_as_tuple(my_cell.value, my_wb.datemode))
             else:
                 tmp_val = my_cell.value
@@ -205,7 +224,9 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
             my_new_row.append(tmp_val)
         as_status_scrubbed.append(my_new_row)
 
+    #
     # Now Scrub Bookings Data
+    #
     bookings_scrubbed = []
     for row_num, my_row in enumerate(bookings):
         my_new_row = []
@@ -235,14 +256,55 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
         bookings_scrubbed.append(my_new_row)
 
     #
+    # Scrub the Telemetry sheets
+    # Merge the telemetry sheets and ADD a column
+    # First the DR SPOCK List
+    #
+    telemetry_scrubbed = []
+    for row_num, my_row in enumerate(telemetry_spock):
+        my_new_row = []
+        for col_num, my_cell in enumerate(my_row):
+            if row_num == 0:
+                tmp_val = my_cell.value
+            else:
+                if col_num >= 1:
+                    tmp_val = int(my_cell.value)
+                else:
+                    tmp_val = my_cell.value
+            my_new_row.append(tmp_val)
+
+        if row_num == 0 :
+            my_new_row.insert(1, 'Type')
+        else :
+            my_new_row.insert(1, 'DR')
+        telemetry_scrubbed.append(my_new_row)
+
+    # Now do the Non-DR STROM list
+    for row_num, my_row in enumerate(telemetry_strom):
+        if row_num == 0:
+            continue
+        my_new_row = []
+        for col_num, my_cell in enumerate(my_row):
+            if col_num >= 1:
+                tmp_val = int(my_cell.value)
+            else:
+                tmp_val = my_cell.value
+            my_new_row.append(tmp_val)
+
+        my_new_row.insert(1, 'Non-DR')
+        telemetry_scrubbed.append(my_new_row)
+
+    #
     # Push the lists out to an Excel File
     #
+    tool.push_list_to_xls(telemetry_scrubbed, app_cfg['XLS_TELEMETRY'], run_dir, 'ta_telemetry')
     tool.push_list_to_xls(bookings_scrubbed, app_cfg['XLS_BOOKINGS'], run_dir, 'ta_bookings')
     tool.push_list_to_xls(subscriptions_scrubbed, app_cfg['XLS_SUBSCRIPTIONS'], run_dir, 'ta_subscriptions')
     tool.push_list_to_xls(as_status_scrubbed, app_cfg['XLS_AS_DELIVERY_STATUS'], run_dir, 'ta_delivery')
     # push_xlrd_to_xls(as_status, app_cfg['XLS_AS_DELIVERY_STATUS'], run_dir, 'ta_delivery')
 
     print('We have ', len(bookings), 'bookings line items')
+    print('We have ', len(telemetry_scrubbed), 'telemetry line items')
     print('We have ', len(as_status), 'AS-Fixed SKU line items')
     print('We have ', len(subscriptions), 'subscription line items')
     msg = 'We have ' + str(len(bookings)) + ' bookings line items'
