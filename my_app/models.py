@@ -178,9 +178,9 @@ class Telemetry(db.Model):
     __tablename__ = 'telemetry'
 
     id = db.Column(db.Integer(), primary_key=True)
-
-    name = db.Column(db.String(25))
+    as_of = db.Column(db.DateTime)
     type = db.Column(db.String(10))
+    name = db.Column(db.String(25))
     vrf = db.Column(db.Integer)
     licensed = db.Column(db.Integer)
     installed = db.Column(db.Integer)

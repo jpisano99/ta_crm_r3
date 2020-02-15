@@ -39,6 +39,22 @@ def import_updates_to_sql():
     tool.push_list_to_csv(my_new_list, 'csv_subscriptions.csv')
     tool.load_infile('subscriptions', 'csv_subscriptions.csv', delete_rows=True)
 
+
+    #
+    # Import Telemerty
+    #
+    wb, ws = tool.open_wb(app_cfg['XLS_TELEMETRY'])
+    my_csv = tool.xlrd_wb_to_csv(wb, ws)
+
+    my_new_list = []
+    for my_row in my_csv:
+        my_row.insert(0, '')
+        my_new_list.append(my_row)
+
+    tool.push_list_to_csv(my_new_list, 'csv_telemetry.csv')
+    tool.load_infile('telemetry', 'csv_telemetry.csv', delete_rows=True)
+
+
     #
     # Import Bookings
     #

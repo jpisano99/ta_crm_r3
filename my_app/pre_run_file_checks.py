@@ -261,6 +261,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
     # First the DR SPOCK List
     #
     telemetry_scrubbed = []
+    time_stamp = datetime.strptime(processing_date, '%m-%d-%y')
     for row_num, my_row in enumerate(telemetry_spock):
         my_new_row = []
         for col_num, my_cell in enumerate(my_row):
@@ -273,9 +274,11 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                     tmp_val = my_cell.value
             my_new_row.append(tmp_val)
 
-        if row_num == 0 :
+        if row_num == 0:
+            my_new_row.insert(0, 'As_of')
             my_new_row.insert(1, 'Type')
         else :
+            my_new_row.insert(0, time_stamp)
             my_new_row.insert(1, 'DR')
         telemetry_scrubbed.append(my_new_row)
 
@@ -291,6 +294,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 tmp_val = my_cell.value
             my_new_row.append(tmp_val)
 
+        my_new_row.insert(0, time_stamp)
         my_new_row.insert(1, 'Non-DR')
         telemetry_scrubbed.append(my_new_row)
 
