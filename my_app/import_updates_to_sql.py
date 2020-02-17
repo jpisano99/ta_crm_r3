@@ -41,8 +41,9 @@ def import_updates_to_sql():
 
 
     #
-    # Import Telemerty
+    # Import Telemetry
     #
+    # CREATE TABLE ta_adoption_db.telemetry_repo  LIKE ta_adoption_db.telemetry;
     wb, ws = tool.open_wb(app_cfg['XLS_TELEMETRY'])
     my_csv = tool.xlrd_wb_to_csv(wb, ws)
 

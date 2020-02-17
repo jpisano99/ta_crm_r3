@@ -503,7 +503,7 @@ def main():
                             break
 
                     if isinstance(billing_start_date, datetime) and isinstance(as_project_start, datetime):
-                        time_to_service = billing_start_date - as_project_start
+                        time_to_service = (billing_start_date - as_project_start).days
                     else:
                         time_to_service = ''
 

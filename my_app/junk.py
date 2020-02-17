@@ -1,183 +1,32 @@
-from my_app.settings import db_config
-from sqlalchemy import desc, asc
 import my_app.tool_box as tool
-from my_app import db
-from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders, BookingsSchema
+from my_app.settings import app_cfg
+from datetime import datetime
 import time
-from flask import jsonify
 
-jim = {}
-id = 123
-id2 = 345
+# Get SAAS Data from the BU Tracking Sheet
+saas_tracking_dict = {}
+saas_tracking_rows = tool.get_list_from_ss(app_cfg['SS_SAAS'])
 
-cust_data = {}
-erp_name_list = {}
+for my_row in range(1, len(saas_tracking_rows)):
+    saas_tracking_name = saas_tracking_rows[my_row][2]
+    saas_cust_id = saas_tracking_rows[my_row][3]
+    saas_telemetry_name = saas_tracking_rows[my_row][4]
+    saas_tracking_so_number = saas_tracking_rows[my_row][6]
+    saas_tracking_start_date = saas_tracking_rows[my_row][7]
 
-cust_data['global_names'] = [1,2,3]
-cust_data['erp_names'] = [10,20,30]
-cust_data['so_nums'] = ['AA','BB','CC']
-cust_data['web_ids'] = ['ZZ','XX','YY']
+    if saas_tracking_start_date != '':
+        saas_tracking_start_date = datetime.strptime(saas_tracking_start_date, '%Y-%m-%d')
 
-jim[id] = cust_data
-jim[id2] = cust_data
+    if type(saas_tracking_so_number) is float:
+        tmp_int = int(saas_tracking_so_number)
+        saas_tracking_so_number = str(tmp_int)
 
-print (jim)
+    if type(saas_cust_id) is float:
+        tmp_int = int(saas_cust_id)
+        saas_cust_id = str(tmp_int)
+
+    saas_tracking_dict[saas_telemetry_name] = [saas_tracking_name, saas_cust_id, saas_tracking_so_number,
+                                               saas_tracking_start_date]
+
+print(saas_tracking_dict)
 exit()
-
-
-jim = 'BUNDESRECHENZENTRUM GESELLSCHAFT MIT BESCHRÃƒÃ—NKTER HAFTUNG'
-print(len(jim))
-jim = ['a','g','h']
-if 'w' in jim:
-    print('hello')
-
-exit()
-
-
-# tool.create_tables("Customer_Ids")
-tool.drop_tables("Sales_Orders")
-tool.create_tables("Sales_Orders")
-# tool.create_tables("Bookings_New")
-
-
-# tool.drop_tables("Bookings")
-
-# tool.drop_tables("Customer_Ids")
-
-
-exit()
-
-#
-# table_name = "bookings"
-#
-# tool.drop_tables("Customers")
-# tool.create_tables("Customers")
-#
-# tool.drop_tables("Customer_Names")
-# tool.create_tables("Customer_Names")
-#
-# tool.drop_tables("Orders")
-# tool.create_tables("Orders")
-
-#
-# Scrub Raw Bookings Table of Invalid Data
-#
-
-# kwargs = {'end_customer_global_ultimate_id': '-999',
-#           'erp_sales_order_number': '-7777',
-#           'erp_end_customer_name' : 'UNKNOWN'}
-# my_bookings = Bookings.query.filter_by(**kwargs).delete()
-# print(my_bookings)
-# db.session.commit()
-
-my_bookings = Bookings.query.filter(Bookings.end_customer_global_ultimate_id == "-999").\
-                filter(Bookings.erp_end_customer_name != "-UNKNOWN").all()
-
-# jim = Bookings.query.first()
-# # print(jsonify(jim))
-# bookings_schema = BookingsSchema()
-# output = bookings_schema.dump(jim)
-# print(output)
-#
-#
-# # print(jsonify(output))
-# exit()
-
-
-stan = db.engine.execute("SHOW COLUMNS FROM `bookings`;")
-for i in stan:
-    print(i[0])
-
-print(len(my_bookings))
-names_with_no_id = {}
-for x in my_bookings:
-    # print(x.erp_end_customer_name, x.end_customer_global_ultimate_id)
-    names_with_no_id[x.erp_end_customer_name] = x.end_customer_global_ultimate_id
-    print(x.sales_agent_name)
-
-print(len(names_with_no_id))
-print(names_with_no_id)
-time.sleep(.5)
-exit()
-
-
-
-# db.session.delete(my_bookings)
-
-# my_bookings = Bookings.query.filter_by(end_customer_global_ultimate_id="-999").all()
-
-# my_bookings = Bookings.query.filter_by(end_customer_global_ultimate_id="-999").\
-#             filter_by(erp_sales_order_number="-7777").\
-#             filter_by(erp_end_customer_name='UNKNOWN').all()
-
-# print(len(my_bookings))
-exit()
-
-#
-# Create Customer ID Table
-#
-# table_name = 'bookings'
-sql = "INSERT INTO `customers` (`end_customer_global_ultimate_id`) " + \
-      "SELECT DISTINCT `end_customer_global_ultimate_id` FROM " +\
-      "`" + db_config['DATABASE'] + "`.`" + table_name + "`"
-sql_results = db.engine.execute(sql)
-# print(dir(sql_results))
-# print(sql_results.fetchone())
-# print(sql_results.lastrowid)
-print("Loaded Customers:", sql_results.rowcount, ' rows')
-
-
-
-#
-# Create Customer Names Table
-#
-table_name = 'bookings'
-sql = "INSERT INTO `customer_names` (`erp_end_customer_name`, `end_customer_global_ultimate_id`) " + \
-      "SELECT DISTINCT `erp_end_customer_name`, `end_customer_global_ultimate_id` FROM " +\
-      "`" + db_config['DATABASE'] + "`.`" + table_name + "`"
-sql_results = db.engine.execute(sql)
-print("Loaded Customer_Names:", sql_results.rowcount, ' rows')
-
-
-# Customer Orders
-table_name = 'bookings'
-sql = "INSERT INTO `orders` (`erp_sales_order_number`, `end_customer_global_ultimate_id`) " + \
-      "SELECT DISTINCT `erp_sales_order_number`, `end_customer_global_ultimate_id` FROM " +\
-      "`" + db_config['DATABASE'] + "`.`" + table_name + "`"
-
-sql_results = db.engine.execute(sql)
-print("Loaded Customer Unique Order Numbers:", sql_results.rowcount)
-
-#
-# Build Customer View (ID, Aliases, Orders, Items)
-#
-cust_id_recs = Customers.query.order_by(asc(Customers.end_customer_global_ultimate_id)).all()
-
-for cust_id_rec in cust_id_recs:
-    cust_id = cust_id_rec.end_customer_global_ultimate_id
-    if cust_id == '-999':
-        continue
-
-    cust_names = Customer_Names.query.\
-        filter_by(end_customer_global_ultimate_id=cust_id).all()
-
-    orders = Orders.query.\
-        filter_by(end_customer_global_ultimate_id=cust_id).all()
-
-    print(cust_id)
-
-    for cust_name in cust_names:
-        print("\t", cust_name.erp_end_customer_name)
-
-    for order in orders:
-        order_id = order.erp_sales_order_number
-        print("\t\t", order_id)
-        items = Bookings.query. \
-            filter_by(erp_sales_order_number=order_id).all()
-
-        for item in items:
-            print("\t\t\t", item.bundle_product_id)
-
-    time.sleep(.25)
-
-

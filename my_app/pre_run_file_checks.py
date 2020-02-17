@@ -109,6 +109,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
     processing_date = date_list[0]
     file_paths = []
     bookings = []
+    bookings_header_flag = False
     subscriptions = []
     as_status = []
     telemetry_spock = []
@@ -136,7 +137,13 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
 
         if file_name.find('Bookings') != -1:
             # For the Bookings start_row is here
-            start_row = 3
+            # This header flag tells us we have been here once already
+            # So we need to skip the header row
+            if bookings_header_flag is False:
+                start_row = 3
+                bookings_header_flag = True
+            else:
+                start_row = 4
             start_col = 1
             for row in range(start_row, my_ws.nrows):
                 bookings.append(my_ws.row_slice(row, start_col))
@@ -164,6 +171,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 # Check to see if this is a TA SKU
                 if my_ws.cell_value(row, 14) in sku_filter_dict:
                     as_status.append(my_ws.row_slice(row))
+
     #
     # All raw data now read in
 
@@ -309,7 +317,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
 
     print('We have ', len(bookings), 'bookings line items')
     print('We have ', len(telemetry_scrubbed), 'telemetry line items')
-    print('We have ', len(as_status), 'AS-Fixed SKU line items')
+    print('We have ', len(as_status), 'AS-Fixed SKU Delivery line items')
     print('We have ', len(subscriptions), 'subscription line items')
     msg = 'We have ' + str(len(bookings)) + ' bookings line items'
 

@@ -22,7 +22,8 @@ app_cfg = dict(
 
     # Raw Data Files to ingest
     RAW_SUBSCRIPTIONS='TA Master Subscriptions as of',
-    RAW_BOOKINGS='TA Master Bookings with SO as of',
+    RAW_PRODUCT_BOOKINGS='TA Product Bookings with SO as of',
+    RAW_SERVICES_BOOKINGS='TA Services Bookings with SO as of',
     RAW_TA_AS_FIXED_SKU='TA AS Delivery Status as of',
     RAW_TELEMETRY_DR='TA SPOCK_sensor_sum as of',
     RAW_TELEMETRY_NON_DR='TA STROM_sensor_sum as of',

@@ -12,11 +12,11 @@ telemetry_dict={}
 telemetry_wb, telemetry_ws = tool.open_wb(app_cfg['XLS_TELEMETRY'])
 print('Telemetry Customers Reporting', telemetry_ws.nrows)
 for row in range(1, telemetry_ws.nrows):
-    telemetry_name = telemetry_ws.cell_value(row, 0)
-    telemetry_vrf_number = str(int(telemetry_ws.cell_value(row, 2)))
-    telemetry_num_of_licenses = telemetry_ws.cell_value(row, 3)
-    telemetry_actual_sensors_installed = telemetry_ws.cell_value(row, 4)
-    telemetry_inactive_agents = telemetry_ws.cell_value(row, 5)
+    telemetry_name = telemetry_ws.cell_value(row, 2)
+    telemetry_vrf_number = str(int(telemetry_ws.cell_value(row, 3)))
+    telemetry_num_of_licenses = telemetry_ws.cell_value(row, 4)
+    telemetry_actual_sensors_installed = telemetry_ws.cell_value(row, 5)
+    telemetry_inactive_agents = telemetry_ws.cell_value(row, 6)
 
     telemetry_dict[telemetry_name] = [telemetry_vrf_number, telemetry_num_of_licenses,
                                       telemetry_actual_sensors_installed, telemetry_inactive_agents]
@@ -79,21 +79,20 @@ for row in range(1, magic_ws.nrows):
                                    magic_sales_lv_1, magic_sales_lv_2, magic_as_dm]
 
 #
-# Get ALL items from SAAS tracking sheet
+# Get ALL items from BU SAAS Smartsheet tracking sheet
 #
 saas_tracking_dict = {}
-saas_tracking_wb, saas_tracking_ws = tool.open_wb(app_cfg['XLS_SAAS_TRACKING'])
-print(saas_tracking_ws.nrows)
-for row in range(1, saas_tracking_ws.nrows):
-    saas_tracking_name = saas_tracking_ws.cell_value(row, 2)
-    saas_cust_id = saas_tracking_ws.cell_value(row, 3)
-    saas_telemetry_name = saas_tracking_ws.cell_value(row, 4)
-    saas_tracking_so_number = saas_tracking_ws.cell_value(row, 6)
-    saas_tracking_start_date = saas_tracking_ws.cell_value(row, 7)
+saas_tracking_rows = tool.get_list_from_ss(app_cfg['SS_SAAS'])
 
-    if saas_tracking_ws.cell_type(row, 7) == xlrd.XL_CELL_DATE:
-        saas_tracking_start_date = datetime.datetime(*xlrd.xldate_as_tuple(saas_tracking_start_date, saas_tracking_wb.datemode))
-        # print(saas_tracking_start_date, type(saas_tracking_start_date))
+for my_row in range(1, len(saas_tracking_rows)):
+    saas_tracking_name = saas_tracking_rows[my_row][2]
+    saas_cust_id = saas_tracking_rows[my_row][3]
+    saas_telemetry_name = saas_tracking_rows[my_row][4]
+    saas_tracking_so_number = saas_tracking_rows[my_row][6]
+    saas_tracking_start_date = saas_tracking_rows[my_row][7]
+
+    if saas_tracking_start_date != '':
+        saas_tracking_start_date = datetime.datetime.strptime(saas_tracking_start_date, '%Y-%m-%d')
 
     if type(saas_tracking_so_number) is float:
         tmp_int = int(saas_tracking_so_number)
@@ -102,7 +101,9 @@ for row in range(1, saas_tracking_ws.nrows):
     if type(saas_cust_id) is float:
         tmp_int = int(saas_cust_id)
         saas_cust_id = str(tmp_int)
-    saas_tracking_dict[saas_telemetry_name] = [saas_tracking_name, saas_cust_id, saas_tracking_so_number, saas_tracking_start_date]
+
+    saas_tracking_dict[saas_telemetry_name] = [saas_tracking_name, saas_cust_id, saas_tracking_so_number,
+                                               saas_tracking_start_date]
 
 print(telemetry_dict)
 print(sub_by_num_dict)
