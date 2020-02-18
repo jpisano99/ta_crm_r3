@@ -1,14 +1,12 @@
 import my_app.tool_box as tool
 from my_app.settings import app_cfg
 import xlrd
-from datetime import datetime
 import datetime
-import time
 
 #
 # Get All Customer names and VRFs from Ravi's Sheet
 #
-telemetry_dict={}
+telemetry_dict = {}
 telemetry_wb, telemetry_ws = tool.open_wb(app_cfg['XLS_TELEMETRY'])
 print('Telemetry Customers Reporting', telemetry_ws.nrows)
 for row in range(1, telemetry_ws.nrows):
@@ -64,16 +62,16 @@ for row in range(1, en_ws.nrows):
 #
 # Get ALL PSS & TSA Contact Info
 #
-magic_dict={}
+magic_dict = {}
 magic_wb, magic_ws = tool.open_wb(app_cfg['XLS_DASHBOARD'])
 for row in range(1, magic_ws.nrows):
-    magic_cust_name= magic_ws.cell_value(row, 3)
+    magic_cust_name = magic_ws.cell_value(row, 3)
     magic_as_pid = magic_ws.cell_value(row, 2)
     magic_sales_lv_1 = magic_ws.cell_value(row, 4)
     magic_sales_lv_2 = magic_ws.cell_value(row, 5)
     magic_pss = magic_ws.cell_value(row, 6)
     magic_tsa = str(magic_ws.cell_value(row, 7))
-    magic_as_dm= str(magic_ws.cell_value(row, 15))
+    magic_as_dm = str(magic_ws.cell_value(row, 15))
 
     magic_dict[magic_cust_name] = [magic_as_pid, magic_pss, magic_tsa,
                                    magic_sales_lv_1, magic_sales_lv_2, magic_as_dm]
@@ -118,12 +116,13 @@ print()
 my_list = []
 as_of_date = '2/3/20'
 my_list.append(['Customer Name', 'Num Of Licenses ', '% of Sensors Installed', '% of Active Sensors',
-                'Adoption Factor' + '\n' + '(% Active Sensors : % of Subscription Consumed)' + '\n' + ' as of '+as_of_date,
+                'Adoption Factor' + '\n' + '(% Active Sensors : % of Subscription Consumed)'
+                + '\n' + ' as of ' + as_of_date,
                 'Subscription Term', 'Subscription Status', 'Days to Renew',
                 'PSS', 'TSA', 'Sales Lv 1', 'Sales Lv 2',
                 'Telemetry Name', 'Telemetry VRF',  'Sensors Installed', 'Active Agents',
                 'Sub Order Num', 'Req Start Date', 'Renewal Date',
-                 'CX PID', 'CX Delivery Manager', 'Customer ID'])
+                'CX PID', 'CX Delivery Manager', 'Customer ID'])
 
 for telemetry_name, telemetry_info in telemetry_dict.items():
     telemetry_vrf_number = telemetry_info[0]
@@ -224,4 +223,3 @@ for telemetry_name, telemetry_info in telemetry_dict.items():
                     as_pid, as_dm, cust_id])
 
 tool.push_list_to_xls(my_list, 'tmp_rosetta_stone.xlsx', app_cfg['UPDATES_SUB_DIR'], 'tbl_rosetta')
-

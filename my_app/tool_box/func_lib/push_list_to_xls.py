@@ -1,5 +1,6 @@
 import xlsxwriter
 import datetime
+import time
 import os
 from my_app.settings import app_cfg
 
@@ -72,8 +73,8 @@ def push_list_to_xls(my_list, excel_file, run_dir=app_cfg['UPDATES_SUB_DIR'], tb
 
     # Make a table of our data (handy for PowerBI
     worksheet.add_table(0, 0, row_num, col_num, {'header_row': True,
-                                                     'name': tbl_name,
-                                                     'columns': col_list})
+                                                 'name': tbl_name,
+                                                 'columns': col_list})
 
     workbook.close()
     return
