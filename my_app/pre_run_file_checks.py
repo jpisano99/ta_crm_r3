@@ -110,6 +110,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
     file_paths = []
     bookings = []
     bookings_header_flag = False
+    subscriptions_header_flag = False
     subscriptions = []
     as_status = []
     telemetry_spock = []
@@ -149,9 +150,18 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 bookings.append(my_ws.row_slice(row, start_col))
 
         elif file_name.find('Subscriptions') != -1:
-            # This raw sheet starts on row num 0
-            for row in range(0, my_ws.nrows):
-                subscriptions.append(my_ws.row_slice(row))
+            # # For the Subscriptions start_row is here
+            # # We are merging the EA's and Regular Subscriptions
+            # # This header flag tells us we have been here once already
+            # # So we need to skip the header row
+            if subscriptions_header_flag is False:
+                start_row = 0
+                subscriptions_header_flag = True
+            else:
+                start_row = 1
+            start_col = 0
+            for row in range(start_row, my_ws.nrows):
+                subscriptions.append(my_ws.row_slice(row, start_col))
 
         elif file_name.find('SPOCK_sensor_sum') != -1:
             # This raw sheet starts on row num 0

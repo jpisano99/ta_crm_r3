@@ -21,3 +21,15 @@ Bu ERP Name
 By SO ->>
 By Web Order ->>
 
+
+customer
+    get what they bought - Bookings Data
+    get what their subscriptions are - Subscriptions Data
+    get what their services are - CX SKUs
+
+    get what they have adopted - Telemetry
+    get what services they have consumed - CX updates
+
+
+
+
