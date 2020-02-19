@@ -1,13 +1,16 @@
 import my_app.tool_box as tool
 from my_app.settings import app_cfg
-from my_app.Customer import Customer
-# from my_app.func_lib.find_team import find_team
 from datetime import datetime
 import xlrd
-import time
+from my_app.models import Subscriptions
 
 
 def get_subscriptions(sub_ws, cust_name):
+
+    my_subscriptions = Subscriptions.query.filter(Subscriptions.end_customer == cust_name).all()
+    my_subscription = ''
+
+    subs_list = []
     for row_num in range(1, sub_ws.nrows):
         if sub_ws.cell_value(row_num, 2) != cust_name:
             continue
@@ -29,16 +32,10 @@ def get_subscriptions(sub_ws, cust_name):
             year, month, day, hour, minute, second = xlrd.xldate_as_tuple(sub_renew_date, sub_wb.datemode)
             sub_renew_date = datetime(year, month, day)
 
-            print(sub_cust_name, sub_sku, sub_id, sub_web_order_id, sub_term,
-                  sub_start_date, sub_renew_date, sub_renew_status, sub_monthly_rev)
+            subs_list.append([sub_cust_name, sub_sku, sub_id, sub_web_order_id, sub_term,
+                             sub_start_date, sub_renew_date, sub_renew_status, sub_monthly_rev])
 
-            # if sub_cust_name in cust_alias_db:
-            #     cust_id = cust_alias_db[sub_cust_name]
-            #     cust_obj = cust_db[cust_id]
-            #     sub_info = [sub_id, sub_cust_name, sub_start_date, sub_renew_date, sub_renew_status, sub_monthly_rev]
-            #     cust_obj.add_sub_id(sub_info)
-
-    return
+    return subs_list
 
 
 if __name__ == "__main__" and __package__ is None:
@@ -49,4 +46,6 @@ if __name__ == "__main__" and __package__ is None:
     # cust_name = 'FEDEX SERVICES'
     cust_name = 'JACOB K JAVITS CONVENTION CTR'
 
-    get_subscriptions(sub_ws, cust_name)
+    my_subs = get_subscriptions(sub_ws, cust_name)
+    for my_sub in my_subs:
+        print(my_sub)

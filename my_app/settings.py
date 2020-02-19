@@ -28,6 +28,7 @@ app_cfg = dict(
     RAW_TA_AS_FIXED_SKU='TA AS Delivery Status as of',
     RAW_TELEMETRY_DR='TA SPOCK_sensor_sum as of',
     RAW_TELEMETRY_NON_DR='TA STROM_sensor_sum as of',
+    RAW_SAAS_TRACKING='TA SaaS Customer Tracking as of',
 
     # Scrubbed Data Working Files
     XLS_SUBSCRIPTIONS='tmp_Master Subscriptions.xlsx',
@@ -41,7 +42,7 @@ app_cfg = dict(
     #
     # Testing
     #
-    XLS_SAAS_TRACKING='TA SaaS Customer Tracking as of 02-03-20.xlsx',
+
     XLS_UNIQUE_CUSTOMERS='tmp_unique_customer_names.xlsx',
     XLS_EN_AGREEMENTS = 'TA Enterprise Agreements as of 02-03-20.xlsx',
 

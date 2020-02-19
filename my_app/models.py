@@ -154,7 +154,7 @@ class Customer_Aliases(db.Model):
     __tablename__ = 'customer_aliases'
 
     id = db.Column(db.Integer(), primary_key=True)
-    customer_alias = db.Column(db.String(50))
+    customer_alias = db.Column(db.String(100))
     customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
 
 

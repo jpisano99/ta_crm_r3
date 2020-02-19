@@ -8,6 +8,10 @@ from my_app.settings import app_cfg
 import my_app.tool_box as tool
 
 
+def get_cust_name(ws, short_name):
+
+    return
+
 def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
     pp = pprint.PrettyPrinter(indent=4, depth=2)
     home = os.path.join(app_cfg['HOME'], app_cfg['MOUNT_POINT'], app_cfg['MY_APP_DIR'])
@@ -115,6 +119,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
     as_status = []
     telemetry_spock = []
     telemetry_strom = []
+    saas_lookup = {}
     print()
     print('We are processing files:')
 
@@ -166,12 +171,21 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
         elif file_name.find('SPOCK_sensor_sum') != -1:
             # This raw sheet starts on row num 0
             for row in range(0, my_ws.nrows):
-                telemetry_spock.append(my_ws.row_slice(row))
+                # Look for these rows and strip out
+                if (my_ws.cell_value(row, 0).find('spock') != -1)or \
+                   (my_ws.cell_value(row, 0) == 'Default'):
+                    continue
+                else:
+                    telemetry_spock.append(my_ws.row_slice(row))
 
         elif file_name.find('STROM_sensor_sum') != -1:
             # This raw sheet starts on row num 0
-            for row in range(0, my_ws.nrows):
-                telemetry_strom.append(my_ws.row_slice(row))
+            for row in range(1, my_ws.nrows):
+                # Look for these rows and strip out
+                if (my_ws.cell_value(row, 0).find('strom') != -1) or (my_ws.cell_value(row, 0) == 'Default'):
+                    continue
+                else:
+                    telemetry_strom.append(my_ws.row_slice(row))
 
         elif file_name.find('AS Delivery Status') != -1:
             # This AS-F raw sheet starts on row num 0
@@ -181,6 +195,18 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 # Check to see if this is a TA SKU
                 if my_ws.cell_value(row, 14) in sku_filter_dict:
                     as_status.append(my_ws.row_slice(row))
+
+        elif file_name.find('SaaS Customer Tracking') != -1:
+            # Build this index for matching the SaaS Tracker with telemetry data
+            print(my_ws.nrows)
+            for row in range(1, my_ws.nrows):
+                tmp_cust_name = my_ws.cell_value(row, 2)
+                tmp_cust_id = my_ws.cell_value(row, 3)
+                tmp_saas_name = my_ws.cell_value(row, 4)
+                tmp_saas_vrf = my_ws.cell_value(row, 5)
+                if tmp_saas_name == '':
+                    tmp_saas_name = 'Not Yet Provisioned'
+                saas_lookup[tmp_saas_name] = [tmp_cust_name, tmp_saas_vrf, tmp_cust_id]
 
     #
     # All raw data now read in
@@ -282,6 +308,8 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
     time_stamp = datetime.strptime(processing_date, '%m-%d-%y')
     for row_num, my_row in enumerate(telemetry_spock):
         my_new_row = []
+        tmp_cust_name = ''
+        tmp_cust_id = ''
         for col_num, my_cell in enumerate(my_row):
             if row_num == 0:
                 tmp_val = my_cell.value
@@ -289,15 +317,26 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 if col_num >= 1:
                     tmp_val = int(my_cell.value)
                 else:
+                    # This is column 0 which has the SaaS platform customer short name
                     tmp_val = my_cell.value
+                    if tmp_val in saas_lookup:
+                        print(tmp_val, saas_lookup[tmp_val])
+                        tmp_cust_name = saas_lookup[tmp_val][0]
+                        tmp_cust_id = saas_lookup[tmp_val][2]
+
             my_new_row.append(tmp_val)
 
         if row_num == 0:
             my_new_row.insert(0, 'As_of')
             my_new_row.insert(1, 'Type')
-        else :
+            my_new_row.insert(2, 'Customer Name')
+            my_new_row.insert(3, 'Customer ID')
+
+        else:
             my_new_row.insert(0, time_stamp)
             my_new_row.insert(1, 'DR')
+            my_new_row.insert(2, tmp_cust_name)
+            my_new_row.insert(3, tmp_cust_id)
         telemetry_scrubbed.append(my_new_row)
 
     # Now do the Non-DR STROM list
@@ -305,15 +344,25 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
         if row_num == 0:
             continue
         my_new_row = []
+        tmp_cust_name = ''
+        tmp_cust_id = ''
         for col_num, my_cell in enumerate(my_row):
             if col_num >= 1:
                 tmp_val = int(my_cell.value)
             else:
+                # This is column 0 which has the SaaS platform customer short name
                 tmp_val = my_cell.value
+                if tmp_val in saas_lookup:
+                    print(tmp_val, saas_lookup[tmp_val])
+                    tmp_cust_name = saas_lookup[tmp_val][0]
+                    tmp_cust_id = saas_lookup[tmp_val][2]
+
             my_new_row.append(tmp_val)
 
         my_new_row.insert(0, time_stamp)
         my_new_row.insert(1, 'Non-DR')
+        my_new_row.insert(2, tmp_cust_name)
+        my_new_row.insert(3, tmp_cust_id)
         telemetry_scrubbed.append(my_new_row)
 
     #
