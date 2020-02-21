@@ -39,7 +39,6 @@ def import_updates_to_sql():
     tool.push_list_to_csv(my_new_list, 'csv_subscriptions.csv')
     tool.load_infile('subscriptions', 'csv_subscriptions.csv', delete_rows=True)
 
-
     #
     # Import Telemetry
     #

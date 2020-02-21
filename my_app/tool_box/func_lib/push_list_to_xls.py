@@ -40,7 +40,9 @@ def push_list_to_xls(my_list, excel_file, run_dir=app_cfg['UPDATES_SUB_DIR'], tb
     for row_num, my_row in enumerate(my_list):
         for col_num, cell_val in enumerate(my_row):
             # What type of cell are we writing ?
-            if type(cell_val) is float:
+            if cell_val is None:
+                worksheet.write(row_num, col_num, cell_val)
+            elif type(cell_val) is float:
                 # ANY float will be written as a dollar format
                 worksheet.write(row_num, col_num, cell_val, xls_money)
             elif type(cell_val) is int:

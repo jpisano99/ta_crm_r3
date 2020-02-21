@@ -10,6 +10,9 @@ class Subscriptions(db.Model):
     reseller = db.Column(db.String(50))
     end_customer = db.Column(db.String(50))
     offer_name = db.Column(db.String(50))
+    consumption_health = db.Column(db.String(50))
+    over_consumed_tf_groups = db.Column(db.String(50))
+    next_true_forward = db.Column(db.String(50))
     subscription_id = db.Column(db.String(50))
     status = db.Column(db.String(50))
     start_date = db.Column(db.DateTime)
@@ -174,12 +177,17 @@ class Web_Orders(db.Model):
     web_order_id = db.Column(db.String(50))
     customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
 
+
 class Telemetry(db.Model):
     __tablename__ = 'telemetry'
 
     id = db.Column(db.Integer(), primary_key=True)
     as_of = db.Column(db.DateTime)
     type = db.Column(db.String(10))
+    erp_cust_name = db.Column(db.String(100))
+    erp_cust_id = db.Column(db.String(50))
+    so_number = db.Column(db.String(50))
+    start_date = db.Column(db.DateTime)
     name = db.Column(db.String(25))
     vrf = db.Column(db.Integer)
     licensed = db.Column(db.Integer)

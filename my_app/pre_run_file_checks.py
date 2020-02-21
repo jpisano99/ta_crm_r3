@@ -180,7 +180,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
 
         elif file_name.find('STROM_sensor_sum') != -1:
             # This raw sheet starts on row num 0
-            for row in range(1, my_ws.nrows):
+            for row in range(0, my_ws.nrows):
                 # Look for these rows and strip out
                 if (my_ws.cell_value(row, 0).find('strom') != -1) or (my_ws.cell_value(row, 0) == 'Default'):
                     continue
@@ -198,18 +198,21 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
 
         elif file_name.find('SaaS Customer Tracking') != -1:
             # Build this index for matching the SaaS Tracker with telemetry data
-            print(my_ws.nrows)
             for row in range(1, my_ws.nrows):
                 tmp_cust_name = my_ws.cell_value(row, 2)
                 tmp_cust_id = my_ws.cell_value(row, 3)
                 tmp_saas_name = my_ws.cell_value(row, 4)
                 tmp_saas_vrf = my_ws.cell_value(row, 5)
+                tmp_saas_so = my_ws.cell_value(row, 6)
+                tmp_saas_start_date = my_ws.cell_value(row, 7)
                 if tmp_saas_name == '':
                     tmp_saas_name = 'Not Yet Provisioned'
-                saas_lookup[tmp_saas_name] = [tmp_cust_name, tmp_saas_vrf, tmp_cust_id]
+                saas_lookup[tmp_saas_name] = [tmp_cust_name, tmp_saas_vrf, tmp_cust_id,
+                                              tmp_saas_so, tmp_saas_start_date]
 
     #
     # All raw data now read in
+    #
 
     # Start scrubbing the raw data
     # Scrub Subscriptions
@@ -310,6 +313,8 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
         my_new_row = []
         tmp_cust_name = ''
         tmp_cust_id = ''
+        tmp_saas_start_date = ''
+        tmp_saas_so = ''
         for col_num, my_cell in enumerate(my_row):
             if row_num == 0:
                 tmp_val = my_cell.value
@@ -320,23 +325,45 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                     # This is column 0 which has the SaaS platform customer short name
                     tmp_val = my_cell.value
                     if tmp_val in saas_lookup:
-                        print(tmp_val, saas_lookup[tmp_val])
                         tmp_cust_name = saas_lookup[tmp_val][0]
-                        tmp_cust_id = saas_lookup[tmp_val][2]
+                        try:
+                            tmp_saas_so = str(int(saas_lookup[tmp_val][3]))
+                        except:
+                            tmp_saas_so = str(saas_lookup[tmp_val][3])
+
+                        # Format the Customer ID and Start Date
+                        if saas_lookup[tmp_val][2] != '':
+                            tmp_cust_id = int(saas_lookup[tmp_val][2])
+                        else:
+                            tmp_cust_id = saas_lookup[tmp_val][2]
+
+                        if saas_lookup[tmp_val][4] != '':
+                            tmp_saas_start_date = saas_lookup[tmp_val][4]
+                            tmp_saas_start_date = datetime(*xlrd.xldate_as_tuple(tmp_saas_start_date, my_wb.datemode))
+                        else:
+                            tmp_saas_start_date = saas_lookup[tmp_val][4]
 
             my_new_row.append(tmp_val)
 
+        # saas_lookup[tmp_saas_name] = [tmp_cust_name, tmp_saas_vrf, tmp_cust_id,
+        #                               tmp_saas_so, tmp_saas_start_date]
+
+        # Put in a header row
         if row_num == 0:
             my_new_row.insert(0, 'As_of')
             my_new_row.insert(1, 'Type')
             my_new_row.insert(2, 'Customer Name')
             my_new_row.insert(3, 'Customer ID')
+            my_new_row.insert(4, 'Sales Order')
+            my_new_row.insert(5, 'Start Date Requested')
 
         else:
             my_new_row.insert(0, time_stamp)
             my_new_row.insert(1, 'DR')
             my_new_row.insert(2, tmp_cust_name)
             my_new_row.insert(3, tmp_cust_id)
+            my_new_row.insert(4, tmp_saas_so)
+            my_new_row.insert(5, tmp_saas_start_date)
         telemetry_scrubbed.append(my_new_row)
 
     # Now do the Non-DR STROM list
@@ -346,6 +373,8 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
         my_new_row = []
         tmp_cust_name = ''
         tmp_cust_id = ''
+        tmp_saas_start_date = ''
+        tmp_saas_so = ''
         for col_num, my_cell in enumerate(my_row):
             if col_num >= 1:
                 tmp_val = int(my_cell.value)
@@ -353,16 +382,31 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 # This is column 0 which has the SaaS platform customer short name
                 tmp_val = my_cell.value
                 if tmp_val in saas_lookup:
-                    print(tmp_val, saas_lookup[tmp_val])
                     tmp_cust_name = saas_lookup[tmp_val][0]
-                    tmp_cust_id = saas_lookup[tmp_val][2]
+                    try:
+                        tmp_saas_so = str(int(saas_lookup[tmp_val][3]))
+                    except:
+                        tmp_saas_so = str(saas_lookup[tmp_val][3])
 
+                    # Format the Customer ID and Start Date
+                    if saas_lookup[tmp_val][2] != '':
+                        tmp_cust_id = int(saas_lookup[tmp_val][2])
+                    else:
+                        tmp_cust_id = saas_lookup[tmp_val][2]
+
+                    if saas_lookup[tmp_val][4] != '':
+                        tmp_saas_start_date = saas_lookup[tmp_val][4]
+                        tmp_saas_start_date = datetime(*xlrd.xldate_as_tuple(tmp_saas_start_date, my_wb.datemode))
+                    else:
+                        tmp_saas_start_date = saas_lookup[tmp_val][4]
             my_new_row.append(tmp_val)
 
         my_new_row.insert(0, time_stamp)
         my_new_row.insert(1, 'Non-DR')
         my_new_row.insert(2, tmp_cust_name)
         my_new_row.insert(3, tmp_cust_id)
+        my_new_row.insert(4, tmp_saas_so)
+        my_new_row.insert(5, tmp_saas_start_date)
         telemetry_scrubbed.append(my_new_row)
 
     #
