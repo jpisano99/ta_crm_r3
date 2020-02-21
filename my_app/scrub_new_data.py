@@ -2,7 +2,7 @@ from my_app.settings import db_config
 from sqlalchemy import desc, asc
 import my_app.tool_box as tool
 from my_app import db
-from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders
+from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders, Subscriptions
 from fuzzywuzzy import fuzz
 import time
 
@@ -225,6 +225,34 @@ def scrub_new_data():
     sql = "DELETE FROM `web_orders` WHERE `web_order_id` = 'UNKNOWN'"
     sql_results = db.engine.execute(sql)
     print("Scrubbed Customer Unique Web Order Numbers:", sql_results.rowcount)
+
+    #
+    # Scrub Master Subscriptions - Remove any Sub that is not on the Bookings
+    #
+    my_subs = Subscriptions.query.all()
+    for r in my_subs:
+        sub_order_id = r.weborderid
+        matches = Bookings.query.filter(Bookings.web_order_id == sub_order_id).all()
+        if len(matches) == 0:
+            r.consumption_health = 'DELETE'
+    db.session.commit()
+
+    # Backup Deleted Rows
+    sql = "CREATE TABLE subscriptions_deleted LIKE subscriptions;"
+    sql_results = db.engine.execute(sql)
+    sql = "INSERT INTO subscriptions_deleted SELECT * FROM subscriptions WHERE consumption_health = 'DELETE';"
+    sql_results = db.engine.execute(sql)
+
+    # Physically Delete the marked records
+    del_rows = Subscriptions.query.filter_by(consumption_health='DELETE').delete()
+    print('Actually Deleted ', del_rows)
+    db.session.commit()
+
+    rec_count = Subscriptions.query.all()
+    print('Subscriptions size NOW', len(rec_count))
+
+
+
 
     return
 
