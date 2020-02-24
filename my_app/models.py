@@ -33,6 +33,12 @@ class Subscriptions(db.Model):
     sales_owner_email = db.Column(db.String(50))
     account_type = db.Column(db.String(50))
     days_until_renewal = db.Column(db.String(50))
+    recent_milestone_date = db.Column(db.String(50))
+    tf_order_status = db.Column(db.String(50))
+    tf_order_date = db.Column(db.String(50))
+
+    hash_value = db.Column(db.String(50))
+    date_added = db.Column(db.DateTime)
 
 
 class Services(db.Model):
@@ -71,7 +77,8 @@ class Services(db.Model):
     project_closed_date = db.Column(db.DateTime)
     traffic_lights_account_team = db.Column(db.String(50))
     tracking_responsible = db.Column(db.String(50))
-    column30 = db.Column(db.String(50))
+    hash_value = db.Column(db.String(50))
+    date_added = db.Column(db.DateTime)
 
     def __repr__(self):
         return f"Services for ('{self.pid}' , '{self.end_customer}')"
@@ -187,6 +194,7 @@ class Telemetry(db.Model):
     erp_cust_name = db.Column(db.String(100))
     erp_cust_id = db.Column(db.String(50))
     so_number = db.Column(db.String(50))
+    sub_id = db.Column(db.String(50))
     start_date = db.Column(db.DateTime)
     name = db.Column(db.String(25))
     vrf = db.Column(db.Integer)
@@ -212,6 +220,8 @@ class Telemetry(db.Model):
     netflow = db.Column(db.Integer)
     netscaler = db.Column(db.Integer)
     others = db.Column(db.Integer)
+    hash_value = db.Column(db.String(50))
+    date_added = db.Column(db.DateTime)
 
 
 class Test_Table(db.Model):

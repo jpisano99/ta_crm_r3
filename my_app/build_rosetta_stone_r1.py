@@ -45,7 +45,10 @@ def build_rosetta_stone():
             # Perform All Queries for this Customer Alias
             #
             sql = "SELECT * FROM ta_adoption_db.subscriptions where end_customer = " + '"' + \
-                   customer_name + '"' + " and status = 'ACTIVE'"
+                   customer_name + '"'
+
+            # sql = "SELECT * FROM ta_adoption_db.subscriptions where end_customer = " + '"' + \
+            #        customer_name + '"' + " and status = 'ACTIVE'"
             my_subs = db.engine.execute(sql)
             my_services = Services.query.filter_by(end_customer=customer_name).all()
             my_telemetry = Telemetry.query.filter_by(erp_cust_name=customer_name).all()
@@ -169,6 +172,7 @@ def build_rosetta_stone():
 
     print('done')
     my_telemetry = Telemetry.query.all()
+    a_list = [['cust','vrf','order']]
     for r in my_telemetry:
         telemetry_cust = r.erp_cust_name
         vrf = r.vrf
@@ -180,7 +184,9 @@ def build_rosetta_stone():
                 # print('found',telemetry_cust)
                 break
         if found_it == False:
+            a_list.append([telemetry_cust, vrf, order])
             print('MISSING', telemetry_cust, vrf, order)
+    tool.push_list_to_xls(a_list,'blanche.xlsx')
 
     return
 

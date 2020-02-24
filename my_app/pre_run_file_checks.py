@@ -12,6 +12,7 @@ def get_cust_name(ws, short_name):
 
     return
 
+
 def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
     pp = pprint.PrettyPrinter(indent=4, depth=2)
     home = os.path.join(app_cfg['HOME'], app_cfg['MOUNT_POINT'], app_cfg['MY_APP_DIR'])
@@ -315,6 +316,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
         tmp_cust_id = ''
         tmp_saas_start_date = ''
         tmp_saas_so = ''
+        tmp_sub_id = ''
         for col_num, my_cell in enumerate(my_row):
             if row_num == 0:
                 tmp_val = my_cell.value
@@ -355,7 +357,8 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
             my_new_row.insert(2, 'Customer Name')
             my_new_row.insert(3, 'Customer ID')
             my_new_row.insert(4, 'Sales Order')
-            my_new_row.insert(5, 'Start Date Requested')
+            my_new_row.insert(5, 'Subscription ID')
+            my_new_row.insert(6, 'Start Date Requested')
 
         else:
             my_new_row.insert(0, time_stamp)
@@ -363,7 +366,8 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
             my_new_row.insert(2, tmp_cust_name)
             my_new_row.insert(3, tmp_cust_id)
             my_new_row.insert(4, tmp_saas_so)
-            my_new_row.insert(5, tmp_saas_start_date)
+            my_new_row.insert(5, tmp_sub_id)
+            my_new_row.insert(6, tmp_saas_start_date)
         telemetry_scrubbed.append(my_new_row)
 
     # Now do the Non-DR STROM list
@@ -374,6 +378,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
         tmp_cust_name = ''
         tmp_cust_id = ''
         tmp_saas_start_date = ''
+        tmp_sub_id = ''
         tmp_saas_so = ''
         for col_num, my_cell in enumerate(my_row):
             if col_num >= 1:
@@ -406,7 +411,8 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
         my_new_row.insert(2, tmp_cust_name)
         my_new_row.insert(3, tmp_cust_id)
         my_new_row.insert(4, tmp_saas_so)
-        my_new_row.insert(5, tmp_saas_start_date)
+        my_new_row.insert(5, tmp_sub_id)
+        my_new_row.insert(6, tmp_saas_start_date)
         telemetry_scrubbed.append(my_new_row)
 
     #

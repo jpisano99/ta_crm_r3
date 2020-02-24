@@ -2,6 +2,8 @@ from my_app.settings import app_cfg
 import datetime
 import my_app.tool_box as tool
 import time
+import os
+import json
 
 
 def import_updates_to_sql():
@@ -9,7 +11,17 @@ def import_updates_to_sql():
     # tool.create_tables("Sales_Orders")
 
     tool.create_tables()
-    now = datetime.datetime.now()
+
+    # Fetch Time Stamp info
+    home = os.path.join(app_cfg['HOME'], app_cfg['MOUNT_POINT'], app_cfg['MY_APP_DIR'])
+    run_dir = app_cfg['UPDATES_SUB_DIR']
+    path_to_run_dir = (os.path.join(home, run_dir))
+
+    # Read the config_dict.json file
+    with open(os.path.join(path_to_run_dir, app_cfg['META_DATA_FILE'])) as json_input:
+        config_dict = json.load(json_input)
+    date_tag = config_dict['data_time_stamp']
+    now = datetime.datetime.strptime(date_tag, "%m-%d-%y")
 
     #
     # Import Delivery
@@ -18,8 +30,12 @@ def import_updates_to_sql():
     my_csv = tool.xlrd_wb_to_csv(wb, ws)
 
     my_new_list = []
+    last_col = len(my_csv[0])
     for my_row in my_csv:
         my_row.insert(0, '')
+        my_row.insert(last_col+1, 'hash')
+        my_row.insert(last_col+2, now)
+
         my_new_list.append(my_row)
 
     tool.push_list_to_csv(my_new_list, 'csv_services.csv')
@@ -32,8 +48,11 @@ def import_updates_to_sql():
     my_csv = tool.xlrd_wb_to_csv(wb, ws)
 
     my_new_list = []
+    last_col = len(my_csv[0])
     for my_row in my_csv:
         my_row.insert(0, '')
+        my_row.insert(last_col+1, 'jim')
+        my_row.insert(last_col+2, now)
         my_new_list.append(my_row)
 
     tool.push_list_to_csv(my_new_list, 'csv_subscriptions.csv')
@@ -47,13 +66,15 @@ def import_updates_to_sql():
     my_csv = tool.xlrd_wb_to_csv(wb, ws)
 
     my_new_list = []
+    last_col = len(my_csv[0])
     for my_row in my_csv:
         my_row.insert(0, '')
+        my_row.insert(last_col+1, 'hash')
+        my_row.insert(last_col+2, now)
         my_new_list.append(my_row)
 
     tool.push_list_to_csv(my_new_list, 'csv_telemetry.csv')
     tool.load_infile('telemetry', 'csv_telemetry.csv', delete_rows=True)
-
 
     #
     # Import Bookings
