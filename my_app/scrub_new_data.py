@@ -228,7 +228,9 @@ def scrub_new_data():
 
     #
     # Scrub Master Subscriptions - Remove any Sub that is not on the Bookings
-    #
+    # The Master Subscriptions file is made up of all TA Subs on CCW and
+    # all Enterprise Subs also from CCW
+    # This will remove any Subscriptions where we don't have a WebOrder ID in TA Bookings
     my_subs = Subscriptions.query.all()
     for r in my_subs:
         sub_order_id = r.weborderid

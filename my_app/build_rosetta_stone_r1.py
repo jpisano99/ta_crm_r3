@@ -6,6 +6,35 @@ import time
 from my_app import db
 
 
+def sub_analysis(cust_name):
+    sql = 'CREATE TABLE ta_adoption_db.archive_services_repo LIKE ta_adoption_db.services;'
+    sql = "SELECT * FROM ta_adoption_db.archive_subscriptions_repo " + \
+          "WHERE end_customer = '" + cust_name + "'"
+    sub_recs = db.engine.execute(sql)
+    print("Customer Subscriptions for:", cust_name, sub_recs.rowcount)
+
+    #
+    # Gather Subscription record info
+    #
+    for sub_rec in sub_recs:
+        sub_id = sub_rec.subscription_id
+        sub_offer_name = sub_rec.offer_name
+        sub_start_date = sub_rec.start_date
+        sub_term = int(float(sub_rec.initial_term))
+        sub_status = sub_rec.status
+        sub_so_num = sub_rec.weborderid
+        sub_renewal_date = sub_rec.renewal_date
+        sub_date_added = sub_rec.date_added
+
+        sub_info = [sub_id, sub_offer_name, sub_start_date, sub_term, sub_status,
+                    sub_so_num, sub_renewal_date. sub_date_added]
+        print(sub_info)
+
+
+
+    return
+
+
 def build_rosetta_stone():
     #
     # Build a Team Dict to figure out PSS/TSA
@@ -22,7 +51,7 @@ def build_rosetta_stone():
                 'Subscription Term', 'Subscription Status', 'Days to Renew',
                 'PSS', 'TSA', 'AM', 'Sales Lv 1', 'Sales Lv 2',
                 'Telemetry Name', 'Telemetry VRF', 'Sensors Installed', 'Active Agents',
-                'Sub Type', 'Sub Order Num', 'Req Start Date', 'Renewal Date',
+                'Sub Type', 'Sub Order Num','Sub ID', 'Req Start Date', 'Renewal Date',
                 'CX PID', 'CX Delivery Manager', 'Customer ID'])
 
     #
@@ -163,7 +192,7 @@ def build_rosetta_stone():
                                 pss, tsa, cust_acct_mgr, cust_sales_lev_1, cust_sales_lev_2,
                                 telemetry_name, telemetry_vrf_number,
                                 telemetry_actual_sensors_installed, telemetry_active_agents,
-                                sub_offer_name, sub_so_num, telemetry_start_date, sub_renewal_date,
+                                sub_offer_name, sub_so_num, 'SubID',telemetry_start_date, sub_renewal_date,
                                 as_pid, as_dm, customer_id]
 
                 rosetta_list.append(rosetta_row)
@@ -192,4 +221,5 @@ def build_rosetta_stone():
 
 
 if __name__ == "__main__" and __package__ is None:
-    build_rosetta_stone()
+    # build_rosetta_stone()
+    sub_analysis('CHOCTAW CASINO ADMINISTRATION')
