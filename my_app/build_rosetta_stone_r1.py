@@ -14,8 +14,9 @@ def sub_analysis(cust_name):
     print("Customer Subscriptions for:", cust_name, sub_recs.rowcount)
 
     #
-    # Gather Subscription record info
+    # Gather Subscription record info and sort it
     #
+    sub_list = []
     for sub_rec in sub_recs:
         sub_id = sub_rec.subscription_id
         sub_offer_name = sub_rec.offer_name
@@ -27,10 +28,26 @@ def sub_analysis(cust_name):
         sub_date_added = sub_rec.date_added
 
         sub_info = [sub_id, sub_offer_name, sub_start_date, sub_term, sub_status,
-                    sub_so_num, sub_renewal_date. sub_date_added]
-        print(sub_info)
+                    sub_so_num, sub_renewal_date, sub_date_added]
+        sub_list.append(sub_info)
 
+    #
+    # Create a reverse 2 level sorted index list of (SubId, Date Added to repo)
+    #
+    sub_list.sort(key=lambda x: (x[0], x[7]), reverse=True)
 
+    print('---------------------')
+    for x in sub_list:
+        print(x[0],x[5], x[4], x[7])
+
+    web_order_dict = {}
+
+    for x in sub_list:
+        sub_id = x[0]
+        web_order_id = x[5]
+        web_order_dict[web_order_id] = sub_id
+
+    print(web_order_dict)
 
     return
 
@@ -215,11 +232,14 @@ def build_rosetta_stone():
         if found_it == False:
             a_list.append([telemetry_cust, vrf, order])
             print('MISSING', telemetry_cust, vrf, order)
-    tool.push_list_to_xls(a_list,'blanche.xlsx')
+    tool.push_list_to_xls(a_list, 'blanche.xlsx')
 
     return
 
 
 if __name__ == "__main__" and __package__ is None:
-    # build_rosetta_stone()
-    sub_analysis('CHOCTAW CASINO ADMINISTRATION')
+    build_rosetta_stone()
+    # sub_analysis('CHOCTAW CASINO ADMINISTRATION')
+    print()
+    # sub_analysis('Clarivate Analytics')
+    # sub_analysis('WHATABURGER INC')

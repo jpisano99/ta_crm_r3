@@ -235,6 +235,8 @@ def scrub_new_data():
     for r in my_subs:
         sub_order_id = r.weborderid
         matches = Bookings.query.filter(Bookings.web_order_id == sub_order_id).all()
+
+
         if len(matches) == 0:
             r.consumption_health = 'DELETE'
     db.session.commit()
