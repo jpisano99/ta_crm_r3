@@ -38,7 +38,7 @@ def sub_analysis(cust_name):
 
     print('---------------------')
     for x in sub_list:
-        print(x[0],x[5], x[4], x[7])
+        print(x[0], x[5], x[4], x[7])
 
     web_order_dict = {}
 
@@ -238,8 +238,8 @@ def build_rosetta_stone():
 
 
 if __name__ == "__main__" and __package__ is None:
-    build_rosetta_stone()
+    # build_rosetta_stone()
     # sub_analysis('CHOCTAW CASINO ADMINISTRATION')
     print()
-    # sub_analysis('Clarivate Analytics')
+    sub_analysis('Clarivate Analytics')
     # sub_analysis('WHATABURGER INC')

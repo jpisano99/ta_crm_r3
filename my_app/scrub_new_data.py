@@ -222,22 +222,29 @@ def scrub_new_data():
     sql_results = db.engine.execute(sql)
     print("Loaded Customer Web Order Numbers:", sql_results.rowcount)
 
+    # sql = "INSERT INTO `web_orders` (`web_order_id`, `customer_id`) " + \
+    #       "SELECT DISTINCT `web_order_id`, `end_customer_global_ultimate_id` FROM " + \
+    #       "`" + db_config['DATABASE'] + "`.`archive_bookings_repo`"
+    # sql_results = db.engine.execute(sql)
+    # print("Loaded Customer Archive Web Order Numbers:", sql_results.rowcount)
+
     sql = "DELETE FROM `web_orders` WHERE `web_order_id` = 'UNKNOWN'"
     sql_results = db.engine.execute(sql)
     print("Scrubbed Customer Unique Web Order Numbers:", sql_results.rowcount)
 
     #
     # Scrub Master Subscriptions - Remove any Sub that is not on the Bookings
-    # The Master Subscriptions file is made up of all TA Subs on CCW and
-    # all Enterprise Subs also from CCW
+    # Since The Master Subscriptions file is made up of all TA Subs on CCW and
+    # all Enterprise Subs also from CCW - we need to cull out any EA subs that are NOT also
+    # in the TA Bookings file
     # This will remove any Subscriptions where we don't have a WebOrder ID in TA Bookings
     my_subs = Subscriptions.query.all()
     for r in my_subs:
         sub_order_id = r.weborderid
         matches = Bookings.query.filter(Bookings.web_order_id == sub_order_id).all()
 
-
         if len(matches) == 0:
+            # Unused Field so use this for a DELETE tag
             r.consumption_health = 'DELETE'
     db.session.commit()
 
@@ -254,9 +261,6 @@ def scrub_new_data():
 
     rec_count = Subscriptions.query.all()
     print('Subscriptions size NOW', len(rec_count))
-
-
-
 
     return
 
