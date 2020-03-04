@@ -185,6 +185,14 @@ class Web_Orders(db.Model):
     customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
 
 
+class Subscription_IDs(db.Model):
+    __tablename__ = 'subscription_ids'
+    id = db.Column(db.Integer(), primary_key=True)
+    erp_end_customer_name = db.Column(db.String(100))
+    subscription_id = db.Column(db.String(50))
+    web_order_id = db.Column(db.String(50))
+
+
 class Telemetry(db.Model):
     __tablename__ = 'telemetry'
 
