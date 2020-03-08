@@ -157,7 +157,7 @@ class Customer_Ids(db.Model):
     customer_id = db.Column(db.String(50), primary_key=True)
     customer_aliases = db.relationship('Customer_Aliases', backref='my_customer_id', lazy=True)
     customer_so_numbers = db.relationship('Sales_Orders', backref='my_customer_id', lazy=True)
-    customer_web_order_ids = db.relationship('Web_Orders', backref='my_customer_id', lazy=True)
+    # customer_web_order_ids = db.relationship('Web_Orders', backref='my_customer_id', lazy=True)
 
 
 class Customer_Aliases(db.Model):
@@ -181,16 +181,22 @@ class Web_Orders(db.Model):
     __tablename__ = 'web_orders'
 
     id = db.Column(db.Integer(), primary_key=True)
+    erp_end_customer_name = db.Column(db.String(100))
+    offer_name = db.Column(db.String(50))
     web_order_id = db.Column(db.String(50))
-    customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
+    subscription_id = db.Column(db.String(50))
+    # customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
 
 
 class Subscription_IDs(db.Model):
     __tablename__ = 'subscription_ids'
+
     id = db.Column(db.Integer(), primary_key=True)
     erp_end_customer_name = db.Column(db.String(100))
+    offer_name = db.Column(db.String(50))
     subscription_id = db.Column(db.String(50))
     web_order_id = db.Column(db.String(50))
+    # customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
 
 
 class Telemetry(db.Model):

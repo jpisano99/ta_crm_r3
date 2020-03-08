@@ -2,7 +2,8 @@ from my_app.settings import db_config
 from sqlalchemy import desc, asc
 import my_app.tool_box as tool
 from my_app import db
-from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders, Subscriptions
+from my_app.models import Bookings, Customer_Ids, Customer_Aliases, Sales_Orders, \
+    Subscriptions, Subscription_IDs, Web_Orders
 from fuzzywuzzy import fuzz
 import time
 
@@ -176,6 +177,7 @@ def scrub_new_data():
     #
     # Create New Tables based on imported & updated data
     #
+    tool.drop_tables("Subscription_IDs")
     tool.drop_tables("Web_Orders")
     tool.drop_tables("Sales_Orders")
     tool.drop_tables("Customer_Aliases")
@@ -185,6 +187,7 @@ def scrub_new_data():
     tool.create_tables("Customer_Aliases")
     tool.create_tables("Sales_Orders")
     tool.create_tables("Web_Orders")
+    tool.create_tables("Subscription_IDs")
 
     #
     # Create Customer ID Table
@@ -214,23 +217,94 @@ def scrub_new_data():
     print("Loaded Customer Unique Order Numbers:", sql_results.rowcount)
 
     #
-    # Create Customer Web Orders Table
+    # WebOrderID work
     #
-    sql = "INSERT INTO `web_orders` (`web_order_id`, `customer_id`) " + \
-          "SELECT DISTINCT `web_order_id`, `end_customer_global_ultimate_id` FROM " + \
-          "`" + db_config['DATABASE'] + "`.`Bookings`"
-    sql_results = db.engine.execute(sql)
-    print("Loaded Customer Web Order Numbers:", sql_results.rowcount)
 
-    # sql = "INSERT INTO `web_orders` (`web_order_id`, `customer_id`) " + \
-    #       "SELECT DISTINCT `web_order_id`, `end_customer_global_ultimate_id` FROM " + \
-    #       "`" + db_config['DATABASE'] + "`.`archive_bookings_repo`"
-    # sql_results = db.engine.execute(sql)
-    # print("Loaded Customer Archive Web Order Numbers:", sql_results.rowcount)
+    # Create a tmp work table for tmp_web_orders
+    sql = "CREATE TABLE ta_adoption_db.tmp_web_orders LIKE ta_adoption_db.web_orders;"
+    db.engine.execute(sql)
 
-    sql = "DELETE FROM `web_orders` WHERE `web_order_id` = 'UNKNOWN'"
-    sql_results = db.engine.execute(sql)
-    print("Scrubbed Customer Unique Web Order Numbers:", sql_results.rowcount)
+    # Gather current Web_Order_IDs
+    sql = "INSERT INTO ta_adoption_db.`tmp_web_orders` ( `erp_end_customer_name`, `web_order_id`) " \
+          "SELECT  `erp_end_customer_name`, `web_order_id` " \
+          "FROM ta_adoption_db.bookings " \
+          "WHERE web_order_id <> 'UNKNOWN' ;"
+    db.engine.execute(sql)
+
+    # Gather archive Web_Order_IDs
+    sql = "INSERT INTO ta_adoption_db.`tmp_web_orders` ( `erp_end_customer_name`, `web_order_id`) " \
+          "SELECT  `erp_end_customer_name`, `web_order_id` " \
+          "FROM ta_adoption_db.archive_bookings_repo " \
+          "WHERE web_order_id <> 'UNKNOWN' ;"
+    db.engine.execute(sql)
+
+    # Make a UNIQUE list of ALL Customer Names and Web Order IDs
+    sql = "INSERT INTO ta_adoption_db.`web_orders` ( `erp_end_customer_name`, `web_order_id`) " \
+          "SELECT DISTINCT  `erp_end_customer_name`, `web_order_id` " \
+          "FROM ta_adoption_db.`tmp_web_orders`;"
+    db.engine.execute(sql)
+
+    # Drop the work/tmp file
+    sql = "DROP TABLE ta_adoption_db.tmp_web_orders; "
+    db.engine.execute(sql)
+
+    #
+    # SubscriptionIDs work
+    #
+
+    # Create a tmp work table for tmp_subs_ids
+    sql = "CREATE TABLE ta_adoption_db.tmp_subs_ids LIKE ta_adoption_db.subscription_ids;"
+    db.engine.execute(sql)
+
+    # Gather all Customer Names and SubIDs from the archive Subscription Data (EAs + Normal SKUs)
+    # into the tmp_subs table
+    sql = "INSERT INTO ta_adoption_db.`tmp_subs_ids` ( `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id`) " \
+          "SELECT  `end_customer`, `offer_name`, `subscription_id`, `weborderid` " \
+          "FROM ta_adoption_db.archive_subscriptions_repo;"
+    db.engine.execute(sql)
+
+    # Gather all Customer Names and SubIDs from the current Subscription Data (EAs + Normal SKUs)
+    # into the tmp_subs table
+    sql = "INSERT INTO ta_adoption_db.`tmp_subs_ids` ( `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id`) " \
+          "SELECT  `end_customer`, `offer_name`, `subscription_id`, `weborderid` " \
+          "FROM ta_adoption_db.subscriptions;"
+    db.engine.execute(sql)
+
+    # Make a UNIQUE list of ALL Customer Names and Subscription IDs
+    # into the tmp_subs_2 table
+    sql = "INSERT INTO ta_adoption_db.`subscription_ids` ( `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id`) " \
+          "SELECT DISTINCT  `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id` " \
+          "FROM ta_adoption_db.`tmp_subs_ids`;"
+    db.engine.execute(sql)
+
+    # Drop the work/tmp file tmp_subs_ids
+    sql = "DROP TABLE ta_adoption_db.tmp_subs_ids; "
+    db.engine.execute(sql)
+
+    # AT THIS POINT
+    # subscription_ids has all unique sub_ids (BOTH EA's AND Normal Subscriptions
+    # web_orders has all the unique Web Order IDs from ALL TA Bookings
+
+    # Select just the EA Subscriptions
+    ea_subs = Subscription_IDs.query.filter(Subscription_IDs.offer_name.startswith('E')). \
+        order_by(Subscription_IDs.erp_end_customer_name).all()
+    print('Number of EA Subscriptions ', len(ea_subs))
+
+    # Loop over EAs and see if there is a TA Web_Order in
+    for r in ea_subs:
+        # print(r.erp_end_customer_name, r.offer_name, r.subscription_id, r.web_order_id)
+        web_order_id = r.web_order_id
+        ta_web_orders = Web_Orders.query.filter_by(web_order_id=web_order_id).all()
+        if len(ta_web_orders) > 0:
+            for x in ta_web_orders:
+                print('\t\tMatched: ', x.web_order_id)
+        else:
+            r.subscription_id = "NO TA Booking Web Order Found"
+            db.session.commit()
+
+    exit()
+########################################
+
 
     #
     # Scrub Master Subscriptions - Remove any Sub that is not on the Bookings
@@ -238,15 +312,6 @@ def scrub_new_data():
     # all Enterprise Subs also from CCW - we need to cull out any EA subs that are NOT also
     # in the TA Bookings file
     # This will remove any Subscriptions where we don't have a WebOrder ID in TA Bookings
-    my_subs = Subscriptions.query.all()
-    for r in my_subs:
-        sub_order_id = r.weborderid
-        matches = Bookings.query.filter(Bookings.web_order_id == sub_order_id).all()
-
-        if len(matches) == 0:
-            # Unused Field so use this for a DELETE tag
-            r.consumption_health = 'DELETE'
-    db.session.commit()
 
     # Backup Deleted Rows
     sql = "CREATE TABLE subscriptions_deleted LIKE subscriptions;"

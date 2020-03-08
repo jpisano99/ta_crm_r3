@@ -243,3 +243,6 @@ if __name__ == "__main__" and __package__ is None:
     print()
     sub_analysis('Clarivate Analytics')
     # sub_analysis('WHATABURGER INC')
+    # sub_analysis('JACOB K JAVITS CONVENTION CTR')
+
+
