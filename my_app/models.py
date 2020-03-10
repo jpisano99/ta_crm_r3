@@ -196,6 +196,7 @@ class Subscription_IDs(db.Model):
     offer_name = db.Column(db.String(50))
     subscription_id = db.Column(db.String(50))
     web_order_id = db.Column(db.String(50))
+    src = db.Column(db.String(50))
     # customer_id = db.Column(db.String(50), db.ForeignKey('customer_ids.customer_id'))
 
 

@@ -15,6 +15,9 @@
 4 scrub_new_data.py
     Fix and Repair critical key data fiedls missing customer_ids , so_nums etc
 
+5 builid_rosetta_stone_r1.py
+    Build a sheet with telemetery
+
 By ID ->> List of
 By Global Name
 Bu ERP Name

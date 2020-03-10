@@ -238,10 +238,10 @@ def build_rosetta_stone():
 
 
 if __name__ == "__main__" and __package__ is None:
-    # build_rosetta_stone()
+    build_rosetta_stone()
     # sub_analysis('CHOCTAW CASINO ADMINISTRATION')
-    print()
-    sub_analysis('Clarivate Analytics')
+    # print()
+    # sub_analysis('Clarivate Analytics')
     # sub_analysis('WHATABURGER INC')
     # sub_analysis('JACOB K JAVITS CONVENTION CTR')
 

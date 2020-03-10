@@ -258,22 +258,22 @@ def scrub_new_data():
 
     # Gather all Customer Names and SubIDs from the archive Subscription Data (EAs + Normal SKUs)
     # into the tmp_subs table
-    sql = "INSERT INTO ta_adoption_db.`tmp_subs_ids` ( `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id`) " \
-          "SELECT  `end_customer`, `offer_name`, `subscription_id`, `weborderid` " \
+    sql = "INSERT INTO ta_adoption_db.`tmp_subs_ids` ( `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id`, `src`) " \
+          "SELECT  `end_customer`, `offer_name`, `subscription_id`, `weborderid`, 'archive' " \
           "FROM ta_adoption_db.archive_subscriptions_repo;"
     db.engine.execute(sql)
 
     # Gather all Customer Names and SubIDs from the current Subscription Data (EAs + Normal SKUs)
     # into the tmp_subs table
-    sql = "INSERT INTO ta_adoption_db.`tmp_subs_ids` ( `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id`) " \
-          "SELECT  `end_customer`, `offer_name`, `subscription_id`, `weborderid` " \
+    sql = "INSERT INTO ta_adoption_db.`tmp_subs_ids` ( `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id` , `src`) " \
+          "SELECT  `end_customer`, `offer_name`, `subscription_id`, `weborderid` , 'current' " \
           "FROM ta_adoption_db.subscriptions;"
     db.engine.execute(sql)
 
     # Make a UNIQUE list of ALL Customer Names and Subscription IDs
     # into the tmp_subs_2 table
-    sql = "INSERT INTO ta_adoption_db.`subscription_ids` ( `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id`) " \
-          "SELECT DISTINCT  `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id` " \
+    sql = "INSERT INTO ta_adoption_db.`subscription_ids` ( `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id`, `src`) " \
+          "SELECT DISTINCT  `erp_end_customer_name`, `offer_name`, `subscription_id`, `web_order_id`, `src` " \
           "FROM ta_adoption_db.`tmp_subs_ids`;"
     db.engine.execute(sql)
 
@@ -286,11 +286,12 @@ def scrub_new_data():
     # web_orders has all the unique Web Order IDs from ALL TA Bookings
 
     # Select just the EA Subscriptions
+    sub_delete_list = []
     ea_subs = Subscription_IDs.query.filter(Subscription_IDs.offer_name.startswith('E')). \
         order_by(Subscription_IDs.erp_end_customer_name).all()
     print('Number of EA Subscriptions ', len(ea_subs))
 
-    # Loop over EAs and see if there is a TA Web_Order in
+    # Loop over EAs and see if there is a TA Web_Order
     for r in ea_subs:
         # print(r.erp_end_customer_name, r.offer_name, r.subscription_id, r.web_order_id)
         web_order_id = r.web_order_id
@@ -299,21 +300,19 @@ def scrub_new_data():
             for x in ta_web_orders:
                 print('\t\tMatched: ', x.web_order_id)
         else:
+            sub_delete_list.append(r.subscription_id)
             r.subscription_id = "NO TA Booking Web Order Found"
-            db.session.commit()
+    db.session.commit()
 
-    exit()
-########################################
+    # Now delete all Subscriptions that have NO TA Booking
+    for sub_id in sub_delete_list:
+        # print(x)
+        sub_recs = Subscriptions.query.filter_by(subscription_id=sub_id).all()
+        for r in sub_recs:
+            r.consumption_health = 'DELETE'
+    db.session.commit()
 
-
-    #
-    # Scrub Master Subscriptions - Remove any Sub that is not on the Bookings
-    # Since The Master Subscriptions file is made up of all TA Subs on CCW and
-    # all Enterprise Subs also from CCW - we need to cull out any EA subs that are NOT also
-    # in the TA Bookings file
-    # This will remove any Subscriptions where we don't have a WebOrder ID in TA Bookings
-
-    # Backup Deleted Rows
+    # Backup Deleted Subscription Rows
     sql = "CREATE TABLE subscriptions_deleted LIKE subscriptions;"
     sql_results = db.engine.execute(sql)
     sql = "INSERT INTO subscriptions_deleted SELECT * FROM subscriptions WHERE consumption_health = 'DELETE';"
