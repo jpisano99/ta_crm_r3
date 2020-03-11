@@ -209,7 +209,7 @@ def build_rosetta_stone():
                                 pss, tsa, cust_acct_mgr, cust_sales_lev_1, cust_sales_lev_2,
                                 telemetry_name, telemetry_vrf_number,
                                 telemetry_actual_sensors_installed, telemetry_active_agents,
-                                sub_offer_name, sub_so_num, 'SubID',telemetry_start_date, sub_renewal_date,
+                                sub_offer_name, sub_so_num, sub_id,telemetry_start_date, sub_renewal_date,
                                 as_pid, as_dm, customer_id]
 
                 rosetta_list.append(rosetta_row)

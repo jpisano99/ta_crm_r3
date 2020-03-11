@@ -4,9 +4,9 @@
     Prep raw data and create a standard XLSX workbook and create a standard table
     Simply "normalizes" the data and creates standard .xlsx files with a defined table name tbl_xxxxx
 
-2 build_customers_r1.py
-    Combine Bookings / CX Delivery / Subscription workbooks using the Customer.py class
-    Create the magic.xlsx dashboard
+# 2 build_customers_r1.py
+#     Combine Bookings / CX Delivery / Subscription workbooks using the Customer.py class
+#     Create the magic.xlsx dashboard
 
 3 import_updates_to_sql.py
     Pull Bookings/ Delivery and Subscriptions into MySQL
