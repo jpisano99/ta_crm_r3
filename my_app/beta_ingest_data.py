@@ -5,7 +5,7 @@ import my_app.tool_box as tool
 from datetime import datetime
 import time
 
-tool.create_row_hash('Archive_Bookings_Repo')
+tool.create_row_hash('Archive_Telemetry_Repo')
 
 exit()
 
