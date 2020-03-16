@@ -23,6 +23,15 @@ def clean_up():
 
 
 def archive_db():
+    # #
+    # sql = "DELETE FROM ta_adoption_db.archive_bookings_repo where date_added = '2020-02-03';"
+    # sql_results = db.engine.execute(sql)
+    # exit()
+    # DELETE FROM ta_adoption_db.archive_bookings_repo where date_added = '2020-02-03';
+    # DELETE FROM ta_adoption_db.archive_subscriptions_repo where date_added = '2020-02-03';
+    # DELETE FROM ta_adoption_db.archive_services_repo where date_added = '2020-02-03';
+    # DELETE FROM ta_adoption_db.archive_telemetry_repo where date_added = '2020-02-03';
+
     sql = "SELECT DISTINCT `date_added` FROM `archive_bookings_repo` ;"
     sql_results = db.engine.execute(sql)
     repo_date_list = []
@@ -42,7 +51,9 @@ def archive_db():
                 print('Aborting')
                 exit()
 
+    #
     # Merge Bookings
+    #
     sql = "INSERT INTO `archive_bookings_repo` "\
             "(fiscal_year, " \
             "fiscal_quarter_id, " \
@@ -94,8 +105,12 @@ def archive_db():
             "hash_value, " \
             "date_added " \
         "FROM bookings;"
+    sql_results = db.engine.execute(sql)
+    print("Loaded Bookings:", sql_results.rowcount, ' rows')
 
+    #
     # Merge Subscriptions
+    #
     sql = "INSERT INTO `archive_subscriptions_repo` "\
         "(bill_to_customer, " \
         "reseller, " \
@@ -108,7 +123,7 @@ def archive_db():
         "status, " \
         "start_date, " \
         "initial_term, " \
-        "renewal_dat, " \
+        "renewal_date, " \
         "currency, " \
         "monthly_charge, " \
         "auto_renewal_term, " \
@@ -129,7 +144,7 @@ def archive_db():
         "tf_order_date, " \
         "hash_value, " \
         "date_added) " \
-    " SELECT " \
+    "SELECT " \
         "bill_to_customer, " \
         "reseller, " \
         "end_customer, " \
@@ -141,7 +156,7 @@ def archive_db():
         "status, " \
         "start_date, " \
         "initial_term, " \
-        "renewal_dat, " \
+        "renewal_date, " \
         "currency, " \
         "monthly_charge, " \
         "auto_renewal_term, " \
@@ -161,27 +176,160 @@ def archive_db():
         "tf_order_status, " \
         "tf_order_date, " \
         "hash_value, " \
-        "date_added "
+        "date_added " \
     "FROM subscriptions;"
-
-
-
-
-
-    print(sql)
-    sql_results = db.engine.execute(sql)
-    print("Loaded Bookings:", sql_results.rowcount, ' rows')
-    exit()
-
-    sql = "INSERT INTO `archive_services_repo` SELECT * FROM services;"
-    sql_results = db.engine.execute(sql)
-    print("Loaded Services:", sql_results.rowcount, ' rows')
-
-    sql = "INSERT INTO `archive_subscriptions_repo` SELECT * FROM subscriptions;"
     sql_results = db.engine.execute(sql)
     print("Loaded Subscriptions:", sql_results.rowcount, ' rows')
 
-    sql = "INSERT INTO archive_telemetry_repo SELECT * FROM telemetry;"
+    #
+    # Merge Services
+    #
+    sql = "INSERT INTO `archive_services_repo` " \
+            "(pid, " \
+            "delivery_manager, " \
+            "end_customer, " \
+            "project_department_name, " \
+            "op_pm, " \
+            "color_indicator, " \
+            "delivery_pm, " \
+            "tracking_status, " \
+            "tracking_sub_status, " \
+            "comments, " \
+            "dmc_updates, " \
+            "dmc_act_fcst_end, " \
+            "op_forecast, " \
+            "cost_index, " \
+            "sku, " \
+            "project_name, " \
+            "unit, " \
+            "region, " \
+            "wm_in_op, " \
+            "so, " \
+            "as_approved_cost_budget, " \
+            "as_approved_revenue_budget, " \
+            "actual_total_costs, " \
+            "actual_revenue, " \
+            "status, " \
+            "project_class, " \
+            "project_scheduled_start_date, " \
+            "scheduled_end_date, " \
+            "project_creation_date, " \
+            "project_closed_date, " \
+            "traffic_lights_account_team, " \
+            "tracking_responsible, " \
+            "hash_value, " \
+            "date_added) " \
+        "SELECT " \
+            "pid, " \
+            "delivery_manager, " \
+            "end_customer, " \
+            "project_department_name, " \
+            "op_pm, " \
+            "color_indicator, " \
+            "delivery_pm, " \
+            "tracking_status, " \
+            "tracking_sub_status, " \
+            "comments, " \
+            "dmc_updates, " \
+            "dmc_act_fcst_end, " \
+            "op_forecast, " \
+            "cost_index, " \
+            "sku, " \
+            "project_name, " \
+            "unit, " \
+            "region, " \
+            "wm_in_op, " \
+            "so, " \
+            "as_approved_cost_budget, " \
+            "as_approved_revenue_budget, " \
+            "actual_total_costs, " \
+            "actual_revenue, " \
+            "status, " \
+            "project_class, " \
+            "project_scheduled_start_date, " \
+            "scheduled_end_date, " \
+            "project_creation_date, " \
+            "project_closed_date, " \
+            "traffic_lights_account_team, " \
+            "tracking_responsible, " \
+            "hash_value, " \
+            "date_added " \
+        "FROM services;"
+    sql_results = db.engine.execute(sql)
+    print("Loaded Services:", sql_results.rowcount, ' rows')
+
+    #
+    # Merge Telemetry
+    #
+    sql = "INSERT INTO archive_telemetry_repo " \
+            "(as_of, " \
+            "type, " \
+            "erp_cust_name, " \
+            "erp_cust_id, " \
+            "so_number, " \
+            "sub_id, " \
+            "start_date, " \
+            "name, " \
+            "vrf, " \
+            "licensed, " \
+            "installed, " \
+            "inactive, " \
+            "autoupg, " \
+            "windows, " \
+            "linux, " \
+            "aix, " \
+            "lightwt, " \
+            "legacy, " \
+            "deepvis, " \
+            "enforce, " \
+            "enforce_enabled, " \
+            "pid_enabled, " \
+            "forensics_enabled, " \
+            "inventory, " \
+            "anyconnect, " \
+            "anyproxy, " \
+            "erspan, " \
+            "f5, " \
+            "netflow, " \
+            "netscaler, " \
+            "others, " \
+            "hash_value, " \
+            "date_added) " \
+        "SELECT " \
+            "as_of, " \
+            "type, " \
+            "erp_cust_name, " \
+            "erp_cust_id, " \
+            "so_number, " \
+            "sub_id, " \
+            "start_date, " \
+            "name, " \
+            "vrf, " \
+            "licensed, " \
+            "installed, " \
+            "inactive, " \
+            "autoupg, " \
+            "windows, " \
+            "linux, " \
+            "aix, " \
+            "lightwt, " \
+            "legacy, " \
+            "deepvis, " \
+            "enforce, " \
+            "enforce_enabled, " \
+            "pid_enabled, " \
+            "forensics_enabled, " \
+            "inventory, " \
+            "anyconnect, " \
+            "anyproxy, " \
+            "erspan, " \
+            "f5, " \
+            "netflow, " \
+            "netscaler, " \
+            "others, " \
+            "hash_value, " \
+            "date_added " \
+        "FROM telemetry;"
     sql_results = db.engine.execute(sql)
     print("Loaded Telemetry:", sql_results.rowcount, ' rows')
 
@@ -189,6 +337,6 @@ def archive_db():
 
 
 if __name__ == "__main__" and __package__ is None:
-    archive_db()
+    # archive_db()
     # clean_up()
     exit()

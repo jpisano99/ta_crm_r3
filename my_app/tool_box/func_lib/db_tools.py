@@ -1,5 +1,6 @@
 from my_app.models import *
 from my_app.settings import db_config
+import hashlib
 
 
 def create_tables(tbl_name='all'):
@@ -95,6 +96,32 @@ def drop_db(db_name):
     db.engine.execute("DROP SCHEMA IF EXISTS " + db_name + ";")  # create db
     # db.engine.execute("USE " + db_config['DATABASE'] + ";")  # select new db
     return
+
+
+def create_row_hash(table_to_hash):
+    # Collect the column names we are going to hash
+    col_names = []
+    for x in eval(table_to_hash).__table__.columns:
+        # Don't include these two columns for hashing purposes
+        if x.name == 'id' or x.name == 'hash_value' or x.name == 'date_added':
+            continue
+        else:
+            col_names.append(x.name)
+
+    # Loop over the table, create the hash, update the table
+    my_table_rows = eval(table_to_hash).query.all()
+    for r in my_table_rows:
+        row_as_string = ''
+        for x in col_names:
+            my_cmd = "r." + x
+            row_as_string = row_as_string + str(eval(my_cmd))
+
+        hash_val = hashlib.md5(row_as_string.encode('utf-8')).hexdigest()
+        r.hash_value = hash_val
+
+    db.session.commit()
+    return
+
 
 # def createdb():
 #     #create_database('mysql+pymysql://root:YOUR_PASSWORD@aay9qgi0q2ps45.cp1kaaiuayns.us-east-1.rds.amazonaws.com/cust_ref_db')
