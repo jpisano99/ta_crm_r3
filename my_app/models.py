@@ -281,7 +281,7 @@ class Telemetry(db.Model):
     __tablename__ = 'telemetry'
 
     id = db.Column(db.Integer(), primary_key=True)
-    as_of = db.Column(db.DateTime)
+    # as_of = db.Column(db.DateTime)
     type = db.Column(db.String(10))
     erp_cust_name = db.Column(db.String(100))
     erp_cust_id = db.Column(db.String(50))
@@ -320,7 +320,7 @@ class Archive_Telemetry_Repo(db.Model):
     __tablename__ = 'archive_telemetry_repo'
 
     id = db.Column(db.Integer(), primary_key=True)
-    as_of = db.Column(db.DateTime)
+    # as_of = db.Column(db.DateTime)
     type = db.Column(db.String(10))
     erp_cust_name = db.Column(db.String(100))
     erp_cust_id = db.Column(db.String(50))

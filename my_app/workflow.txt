@@ -8,6 +8,9 @@
 #     Combine Bookings / CX Delivery / Subscription workbooks using the Customer.py class
 #     Create the magic.xlsx dashboard
 
+2 delete_current_tables.py
+    Delete all current tables
+
 3 import_updates_to_sql.py
     Pull Bookings/ Delivery and Subscriptions into MySQL
     Create other empty tables from the models.py
