@@ -3,7 +3,8 @@ from my_app.models import *
 import csv
 
 
-def push_outfile(table_name, filter_field=None, filter_value=None, run_dir='C:/ProgramData/MySQL/MySQL Server 8.0/Uploads'):
+def push_outfile(table_name, filter_field=None, filter_value=None,
+                 run_dir='C:/ProgramData/MySQL/MySQL Server 8.0/Uploads'):
 
     # NOTE: table_name passed in MUST be the name used in models.py
     table_name_lc = table_name.lower()
@@ -41,7 +42,7 @@ def push_outfile(table_name, filter_field=None, filter_value=None, run_dir='C:/P
         "TERMINATED BY ',' " \
         "ESCAPED BY '' " \
         "LINES TERMINATED BY '\r\n';"
-    sql_results = db.engine.execute(sql)
+    db.engine.execute(sql)
 
     # Read the CSV file of rows we just created
     # and Insert the col_names as Row 0
@@ -66,4 +67,3 @@ if __name__ == "__main__" and __package__ is None:
     push_outfile('Archive_Services_Repo')
     push_outfile('Archive_Telemetry_Repo')
     push_outfile('Bookings')
-
