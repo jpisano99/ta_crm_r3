@@ -262,8 +262,7 @@ def archive_db():
     # Merge Telemetry
     #
     sql = "INSERT INTO archive_telemetry_repo " \
-            "(as_of, " \
-            "type, " \
+            "(type, " \
             "erp_cust_name, " \
             "erp_cust_id, " \
             "so_number, " \
@@ -296,7 +295,6 @@ def archive_db():
             "hash_value, " \
             "date_added) " \
         "SELECT " \
-            "as_of, " \
             "type, " \
             "erp_cust_name, " \
             "erp_cust_id, " \
@@ -337,6 +335,6 @@ def archive_db():
 
 
 if __name__ == "__main__" and __package__ is None:
-    # archive_db()
+    archive_db()
     # clean_up()
     exit()

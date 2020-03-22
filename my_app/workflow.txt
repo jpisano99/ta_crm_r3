@@ -1,12 +1,7 @@
-
 1 pre_run_file_checks.py
     Insure we have all files for a successful run
     Prep raw data and create a standard XLSX workbook and create a standard table
     Simply "normalizes" the data and creates standard .xlsx files with a defined table name tbl_xxxxx
-
-# 2 build_customers_r1.py
-#     Combine Bookings / CX Delivery / Subscription workbooks using the Customer.py class
-#     Create the magic.xlsx dashboard
 
 2 delete_current_tables.py
     Delete all current tables
@@ -20,6 +15,11 @@
 
 5 builid_rosetta_stone_r1.py
     Build a sheet with telemetery
+
+6 archive_and_reset.py
+
+------------------------------------------------------------------------------------------
+
 
 By ID ->> List of
 By Global Name
@@ -37,5 +37,9 @@ customer
     get what services they have consumed - CX updates
 
 
+
+# 2 build_customers_r1.py
+#     Combine Bookings / CX Delivery / Subscription workbooks using the Customer.py class
+#     Create the magic.xlsx dashboard
 
 
