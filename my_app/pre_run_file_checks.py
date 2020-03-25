@@ -353,12 +353,12 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
         # Put in a header row
         if row_num == 0:
             # my_new_row.insert(0, 'As_of')
-            my_new_row.insert(1, 'Type')
-            my_new_row.insert(2, 'Customer Name')
-            my_new_row.insert(3, 'Customer ID')
-            my_new_row.insert(4, 'Sales Order')
-            my_new_row.insert(5, 'Subscription ID')
-            my_new_row.insert(6, 'Start Date Requested')
+            my_new_row.insert(0, 'Type')
+            my_new_row.insert(1, 'Customer Name')
+            my_new_row.insert(2, 'Customer ID')
+            my_new_row.insert(3, 'Sales Order')
+            my_new_row.insert(4, 'Subscription ID')
+            my_new_row.insert(5, 'Start Date Requested')
 
         else:
             # my_new_row.insert(0, time_stamp)
