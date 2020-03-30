@@ -326,6 +326,8 @@ def scrub_new_data():
     rec_count = Subscriptions.query.all()
     print('Subscriptions size NOW', len(rec_count))
 
+    # Push out XLS sheet for SmartSheets Upload
+    tool.push_outfile('Subscriptions')
     return
 
 

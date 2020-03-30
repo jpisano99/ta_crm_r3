@@ -20,3 +20,24 @@ Change the MySql SERVER .ini file:
 For the CLIENT Side
     set app.config['SQLALCHEMY_DATABASE_URI']
     mysql+mysqlconnector://root:YOURPASSWORD@localhost:3306/test_db?charset=utf8&allow_local_infile=true
+
+
+Flask SQlAlchemy Examples
+
+    Core
+        EXAMPLE
+        sql = "SELECT DISTINCT  `date_added` FROM " + sql_name + ";"
+        sql_results = db.engine.execute(sql)
+        sql_results.rowcount
+
+        EXAMPLE
+        db_status = (db.engine.execute("SHOW VARIABLES WHERE Variable_name = 'port'"))
+        for x in db_status:
+            db_port = x.values()
+
+        EXAMPLE
+        db_cmd = tbl_name + ".__table__.create(db.session.bind)"
+        exec(db_cmd)
+        print('CREATED Table:', tbl_name)
+
+    ORM

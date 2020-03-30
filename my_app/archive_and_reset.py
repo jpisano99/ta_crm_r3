@@ -17,7 +17,7 @@ def clean_up():
     tool.drop_tables("sales_orders")
 
     tool.drop_tables("customer_aliases")
-    tool.drop_tables("customer_ids")
+    tool.drop_tables("customer_ids") 
 
     return
 
