@@ -40,4 +40,14 @@ Flask SQlAlchemy Examples
         exec(db_cmd)
         print('CREATED Table:', tbl_name)
 
+        EXAMPLE Results Proxy Row  to Dict
+        sql = "SELECT * FROM " + end_tbl + ";"
+        sql_results = db.engine.execute(sql)
+        jim = {}
+        for r in sql_results:
+            jim = dict(r)
+            print (jim)
+            print(r.erp_end_customer_name, r.product_id, r.web_order_id, r.erp_sales_order_number, r.hash_value)
+
+
     ORM

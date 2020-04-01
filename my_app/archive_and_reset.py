@@ -2,36 +2,7 @@ import my_app.tool_box as tool
 from my_app import db
 
 
-def clean_up():
-    tool.drop_tables("bookings")
-    tool.drop_tables("bookings_deleted")
-
-    tool.drop_tables("subscriptions")
-    tool.drop_tables("subscriptions_deleted")
-
-    tool.drop_tables("services")
-    tool.drop_tables("telemetry")
-
-    tool.drop_tables("subscription_ids")
-    tool.drop_tables("web_orders")
-    tool.drop_tables("sales_orders")
-
-    tool.drop_tables("customer_aliases")
-    tool.drop_tables("customer_ids") 
-
-    return
-
-
 def archive_db():
-    # #
-    # sql = "DELETE FROM ta_adoption_db.archive_bookings_repo where date_added = '2020-02-03';"
-    # sql_results = db.engine.execute(sql)
-    # exit()
-    # DELETE FROM ta_adoption_db.archive_bookings_repo where date_added = '2020-02-03';
-    # DELETE FROM ta_adoption_db.archive_subscriptions_repo where date_added = '2020-02-03';
-    # DELETE FROM ta_adoption_db.archive_services_repo where date_added = '2020-02-03';
-    # DELETE FROM ta_adoption_db.archive_telemetry_repo where date_added = '2020-02-03';
-
     sql = "SELECT DISTINCT `date_added` FROM `archive_bookings_repo` ;"
     sql_results = db.engine.execute(sql)
     repo_date_list = []
@@ -331,10 +302,14 @@ def archive_db():
     sql_results = db.engine.execute(sql)
     print("Loaded Telemetry:", sql_results.rowcount, ' rows')
 
+    tool.create_row_hash('Archive_Telemetry_Repo')
+    tool.create_row_hash('Archive_Bookings_Repo')
+    tool.create_row_hash('Archive_Subscriptions_Repo')
+    tool.create_row_hash('Archive_Services_Repo')
+
     return
 
 
 if __name__ == "__main__" and __package__ is None:
     archive_db()
-    # clean_up()
     exit()

@@ -101,6 +101,7 @@ def drop_db(db_name):
 def create_row_hash(table_to_hash):
     # Collect the column names we are going to hash
     col_names = []
+    print("Hashing ....", table_to_hash)
     for x in eval(table_to_hash).__table__.columns:
         # Don't include these two columns for hashing purposes
         if x.name == 'id' or x.name == 'hash_value' or x.name == 'date_added':
