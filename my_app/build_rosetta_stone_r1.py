@@ -7,7 +7,7 @@ from my_app import db
 
 
 def sub_analysis(cust_name):
-    sql = 'CREATE TABLE ta_adoption_db.archive_services_repo LIKE ta_adoption_db.services;'
+    # sql = 'CREATE TABLE ta_adoption_db.archive_services_repo LIKE ta_adoption_db.services;'
     sql = "SELECT * FROM ta_adoption_db.archive_subscriptions_repo " + \
           "WHERE end_customer = '" + cust_name + "'"
     sub_recs = db.engine.execute(sql)
@@ -125,6 +125,8 @@ def build_rosetta_stone():
                 #
                 # Gather Subscription record info
                 #
+                print(my_subs.rowcount ,my_rec)
+                time.sleep(.2)
                 sub_id = my_rec.subscription_id
                 sub_offer_name = my_rec.offer_name
                 sub_start_date = my_rec.start_date
@@ -238,8 +240,8 @@ def build_rosetta_stone():
 
 
 if __name__ == "__main__" and __package__ is None:
-    build_rosetta_stone()
-    # sub_analysis('CHOCTAW CASINO ADMINISTRATION')
+    # build_rosetta_stone()
+    sub_analysis('CHOCTAW CASINO ADMINISTRATION')
     # print()
     # sub_analysis('Clarivate Analytics')
     # sub_analysis('WHATABURGER INC')
