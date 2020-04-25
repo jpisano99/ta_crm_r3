@@ -22,7 +22,7 @@ def report_customer_contacts():
     date_added = most_recent_update[0][0].strftime("%Y-%m-%d")
     print("Reporting on most recent snapshot", most_recent_update[0][0])
 
-    sql = "SELECT distinct erp_end_customer_name, end_customer_global_ultimate_id " + \
+    sql = "SELECT distinct erp_end_customer_name, end_customer_global_ultimate_name, end_customer_global_ultimate_id " + \
         "FROM archive_bookings_repo " +\
         "WHERE date_added = '" + date_added + "';"
     customer_aliases = db.engine.execute(sql)
@@ -31,7 +31,7 @@ def report_customer_contacts():
     #
     # Define Header Row
     #
-    customer_contact_list = [['Customer Name', 'Customer ID', 'PSS', 'TSA', 'Account Mgr',
+    customer_contact_list = [['Customer Name', 'Ultimate Customer Name', 'Customer ID', 'PSS', 'TSA', 'Account Mgr',
                               'Sales_Lev_1', 'Sales_Lev_2', 'Sales_Lev_3',
                               'Sales_Lev_4', 'Sales_Lev_5', 'Sales_Lev_6']]
 
@@ -58,7 +58,7 @@ def report_customer_contacts():
         tsa = sales_team[1]
 
         customer_contact_list.append([
-                    r.erp_end_customer_name, r.end_customer_global_ultimate_id,
+                    r.erp_end_customer_name, r.end_customer_global_ultimate_name, r.end_customer_global_ultimate_id,
                     pss, tsa,
                     x.sales_agent_name,
                     x.sales_level_1, x.sales_level_2, x.sales_level_3, x.sales_level_4,
