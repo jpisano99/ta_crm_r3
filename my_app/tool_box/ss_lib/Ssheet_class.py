@@ -90,7 +90,7 @@ class Ssheet:
 
         ss_create_sheet(self.ss, name, _col_dict)
         self.name = name
-        self.refresh()
+        self.refresh(True)
         return
 
     def __repr__(self):

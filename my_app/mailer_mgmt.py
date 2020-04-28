@@ -1,10 +1,7 @@
-import xlrd
-from my_app.settings import app_cfg
-
 import my_app.tool_box as tool
 
 
-def gather_mailer_data(mailer_xlsx, job_title):
+def gather_mailer_data(mailer_xlsx):
     mail_wb, mail_ws = tool.open_wb(mailer_xlsx)
 
     mailer_dict = {}
@@ -18,10 +15,14 @@ def gather_mailer_data(mailer_xlsx, job_title):
         current_row = row
         next_row = current_row + 1
 
+        # Skip a row that contains a nickname
+        # We set this when / if we find a nickname
         if row_skip:
             row_skip = False
             continue
 
+        # Quick check to make sure a nickname check does not throw an error
+        # This only happens when we are on the last row
         if next_row == last_row:
             # Do NOT check for a nickname
             nickname_check = False
@@ -29,14 +30,21 @@ def gather_mailer_data(mailer_xlsx, job_title):
             # Check for a nickname
             nickname_check = True
 
+        # Only check for a nickname if it is "safe" to
+        # nickname_check is set when it we are not on the last row
         if nickname_check:
+            # if col 0 is blank this indicates we have a nickname row
             if mail_ws.cell_value(row + 1, 0) == '':
                 nickname = mail_ws.cell_value(row + 1, 3)
-                row_skip = True
+                row_skip = True  # skip this row on our next loop since it's a nickname row
+            else:
+                # There is no nickname so just set nickname to the same as fname
+                nickname = mail_ws.cell_value(row, 3).capitalize()
         else:
-            nickname = "No Nickname"
+            nickname = mail_ws.cell_value(row, 3).capitalize()
             row_skip = False
 
+        # We need since every row does not have an emp_id
         try:
             emp_id = str(int(mail_ws.cell_value(row, 2)))
         except:
@@ -48,13 +56,18 @@ def gather_mailer_data(mailer_xlsx, job_title):
         lname = mail_ws.cell_value(row, 4).capitalize()
         manager_id = mail_ws.cell_value(row, 7).rstrip()
         dept = mail_ws.cell_value(row, 9).rstrip()
+        job_title = mail_ws.cell_value(row, 10).rstrip()
+
+        if job_title.find("ARCHITECT") >= 0:
+            job_title = 'TSA'
+        elif job_title.find("SALES") >= 0:
+            job_title = "PSS"
 
         if nickname != "No Nickname":
             nickname = nickname.replace('(', '', 1)
             nickname = nickname.replace(')', '', 1).capitalize()
 
-        # print(row, emp_id, username, email, '/', lname + ', ' + fname, '/', nickname, fname, lname, manager_id)
-
+        # Check Dept names and only include TA related departments
         if dept.find('Tetration') != -1 or dept.find('Workload') != -1:
             mailer_dict[emp_id] = {
                 'username': username,
@@ -68,39 +81,43 @@ def gather_mailer_data(mailer_xlsx, job_title):
             }
 
         rm_dict[manager_id] = emp_list.append([mailer_dict])
-    # print(rm_dict)
-    return (mailer_dict)
+    return mailer_dict
 
 
 if __name__ == "__main__" and __package__ is None:
+    # my_ss = tool.Ssheet('Data Collection Test1',False)
+    # print (my_ss.id)
+    # # exit()
+    # my_columns = [{'primary': True, 'title': 'ERP Customer Name', 'type': 'TEXT_NUMBER'},
+    #               {'title': 'End Customer Ultimate Name', 'type': 'TEXT_NUMBER'},
+    #               {'title': 'col1', 'type': 'CHECKBOX', 'symbol': 'STAR'}]
+    #
+    # my_ss.create_sheet('stan', my_columns)
+    # print(my_ss.id)
+    # exit()
+
+
+    # my_ss.create_sheet()
+    # exit()
     ta_mailer = {}
-    my_mailer = gather_mailer_data('jchristo-mailer as of 04-25-20.xlsx', 'TSA')
+    my_mailer = gather_mailer_data('jchristo-mailer as of 04-25-20.xlsx')
     ta_mailer.update(my_mailer)
-    print(len(ta_mailer))
-    print(my_mailer['2665'])
 
-    my_mailer = gather_mailer_data('micashma-mailer as of 04-25-20.xlsx', 'PSS')
+    my_mailer = gather_mailer_data('micashma-mailer as of 04-25-20.xlsx')
     ta_mailer.update(my_mailer)
-    print(len(ta_mailer))
-    print(my_mailer['164409'])
 
-    my_mailer = gather_mailer_data('rhinson-mailer as of 04-25-20.xlsx', 'PSS')
+    my_mailer = gather_mailer_data('rhinson-mailer as of 04-25-20.xlsx')
     ta_mailer.update(my_mailer)
-    print(len(ta_mailer))
-    print(my_mailer['69741'])
 
-    my_list = [['emp id', 'username', 'email', 'full name', 'manager', 'dept', 'job title']]
+    my_list = [['emp id', 'username', 'email', 'full name', 'manager',
+                'dept', 'job title', 'fname', 'nickname', 'lname']]
+
     for k, v in ta_mailer.items():
-        print(k, v['username'], v['dept'], v['job_title'])
-        my_list.append([k, v['username'], v['email'], v['lname']+', '+v['fname'], v['manager_id'], v['dept'], v['job_title']])
+        # print(k, v['username'], v['dept'], v['job_title'])
+        my_list.append([k, v['username'], v['email'], v['lname']+', '+v['nickname'],
+                        v['manager_id'], v['dept'], v['job_title'], v['fname'], v['nickname'], v['lname']])
 
-    tool.push_list_to_xls(my_list, 'mom.xlsx',)
-
-
-
-
-
-
+    tool.push_list_to_xls(my_list, 'tmp_global_ta_team.xlsx',)
 
 exit()
 
