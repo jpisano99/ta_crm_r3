@@ -58,7 +58,15 @@ def gather_mailer_data(mailer_xlsx):
         dept = mail_ws.cell_value(row, 9).rstrip()
         job_title = mail_ws.cell_value(row, 10).rstrip()
 
-        if job_title.find("ARCHITECT") >= 0:
+        if job_title.find("MANAGER-REGIONAL") >= 0:
+            job_title = "RM"
+        elif job_title.find("DIRECTOR-REGIONAL") >= 0:
+            job_title = "OD"
+        elif job_title.find("DIRECTOR SYSTEMS ENGINEER") >= 0:
+            job_title = "SED"
+        elif job_title.find("MANAGER SYSTEMS ENGINEER") >= 0:
+            job_title = "SEM"
+        elif job_title.find("ARCHITECT") >= 0:
             job_title = 'TSA'
         elif job_title.find("SALES") >= 0:
             job_title = "PSS"
@@ -110,12 +118,13 @@ if __name__ == "__main__" and __package__ is None:
     ta_mailer.update(my_mailer)
 
     my_list = [['emp id', 'username', 'email', 'full name', 'manager',
-                'dept', 'job title', 'fname', 'nickname', 'lname']]
+                'dept', 'role', 'fname', 'nickname', 'lname']]
 
     for k, v in ta_mailer.items():
         # print(k, v['username'], v['dept'], v['job_title'])
         my_list.append([k, v['username'], v['email'], v['lname']+', '+v['nickname'],
-                        v['manager_id'], v['dept'], v['job_title'], v['fname'], v['nickname'], v['lname']])
+                        v['manager_id'], v['dept'], v['job_title'],
+                        v['fname'], v['nickname'], v['lname']])
 
     tool.push_list_to_xls(my_list, 'tmp_global_ta_team.xlsx',)
 
