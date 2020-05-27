@@ -1,6 +1,12 @@
 import my_app.tool_box as tool
 
 
+#
+# Cut and Paste into a XLSX file from the Cisco Mailer
+#
+
+
+
 def gather_mailer_data(mailer_xlsx):
     mail_wb, mail_ws = tool.open_wb(mailer_xlsx)
 
@@ -57,29 +63,31 @@ def gather_mailer_data(mailer_xlsx):
         manager_id = mail_ws.cell_value(row, 7).rstrip()
         dept = mail_ws.cell_value(row, 9).rstrip()
         job_title = mail_ws.cell_value(row, 10).rstrip()
+        job_title_short = ''
 
         if job_title.find("MANAGER-REGIONAL") >= 0:
-            job_title = "RM"
+            job_title_short = "RM"
         elif job_title.find("DIRECTOR-REGIONAL") >= 0:
-            job_title = "OD"
+            job_title_short = "OD"
         elif job_title.find("DIRECTOR SYSTEMS ENGINEER") >= 0:
-            job_title = "SED"
+            job_title_short = "SED"
         elif job_title.find("MANAGER SYSTEMS ENGINEER") >= 0:
-            job_title = "SEM"
+            job_title_short = "SEM"
         elif job_title.find("ARCHITECT") >= 0:
-            job_title = 'TSA'
+            job_title_short = 'TSA'
         elif job_title.find("SALES") >= 0:
-            job_title = "PSS"
+            job_title_short = "PSS"
 
         if nickname != "No Nickname":
             nickname = nickname.replace('(', '', 1)
             nickname = nickname.replace(')', '', 1).capitalize()
 
         # Check Dept names and only include TA related departments
-        if dept.find('Tetration') != -1 or dept.find('Workload') != -1:
+        if dept.find('Tetration') != -1 or dept.find('Workload') != -1 or dept.find('Security') != -1:
             mailer_dict[emp_id] = {
                 'username': username,
                 'email': email,
+                'job_title_short': job_title_short,
                 'job_title': job_title,
                 'dept': dept,
                 'fname': fname,
@@ -93,6 +101,11 @@ def gather_mailer_data(mailer_xlsx):
 
 
 if __name__ == "__main__" and __package__ is None:
+    mailer_list = ['jchristo-mailer as of 04-25-20.xlsx',
+                   'micashma-mailer as of 04-25-20.xlsx',
+                   'rhinson-mailer as of 04-25-20.xlsx']
+
+
     # my_ss = tool.Ssheet('Data Collection Test1',False)
     # print (my_ss.id)
     # # exit()
@@ -107,26 +120,32 @@ if __name__ == "__main__" and __package__ is None:
 
     # my_ss.create_sheet()
     # exit()
+
     ta_mailer = {}
-    my_mailer = gather_mailer_data('jchristo-mailer as of 04-25-20.xlsx')
+    my_mailer = gather_mailer_data('vwalters_mailer_raw.xlsx')
     ta_mailer.update(my_mailer)
 
-    my_mailer = gather_mailer_data('micashma-mailer as of 04-25-20.xlsx')
-    ta_mailer.update(my_mailer)
-
-    my_mailer = gather_mailer_data('rhinson-mailer as of 04-25-20.xlsx')
-    ta_mailer.update(my_mailer)
+    # ta_mailer = {}
+    # my_mailer = gather_mailer_data('jchristo-mailer as of 04-25-20.xlsx')
+    # ta_mailer.update(my_mailer)
+    #
+    # my_mailer = gather_mailer_data('micashma-mailer as of 04-25-20.xlsx')
+    # ta_mailer.update(my_mailer)
+    #
+    # my_mailer = gather_mailer_data('rhinson-mailer as of 04-25-20.xlsx')
+    # ta_mailer.update(my_mailer)
 
     my_list = [['emp id', 'username', 'email', 'full name', 'manager',
-                'dept', 'role', 'fname', 'nickname', 'lname']]
+                'dept', 'role', 'job title', 'fname', 'nickname', 'lname']]
 
     for k, v in ta_mailer.items():
         # print(k, v['username'], v['dept'], v['job_title'])
         my_list.append([k, v['username'], v['email'], v['lname']+', '+v['nickname'],
-                        v['manager_id'], v['dept'], v['job_title'],
+                        v['manager_id'], v['dept'], v['job_title_short'], v['job_title'],
                         v['fname'], v['nickname'], v['lname']])
 
-    tool.push_list_to_xls(my_list, 'tmp_global_ta_team.xlsx',)
+    tool.push_list_to_xls(my_list, 'tmp_vwalters_mailer.xlsx',)
+    # tool.push_list_to_xls(my_list, 'tmp_global_ta_team.xlsx',)
 
 exit()
 

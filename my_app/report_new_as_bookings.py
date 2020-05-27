@@ -9,9 +9,9 @@ def report_new_as_bookings():
     team_dict = tool.build_coverage_dict()
 
     # Create the Start and End Dates / Tables
-    start_date = "2020-03-11"
+    start_date = "2020-03-30"
     start_tbl = "tmp_booking_" + start_date.replace('-', '_')
-    end_date = "2020-03-30"
+    end_date = "2020-05-27"
     end_tbl = "tmp_booking_" + end_date.replace('-', '_')
 
     #
@@ -21,8 +21,8 @@ def report_new_as_bookings():
     # tool.create_row_hash('Archive_Bookings_Repo')
 
     # Start Table
-    sql = "DROP TABLE " + start_tbl + ";"
-    db.engine.execute(sql)
+    # sql = "DROP TABLE " + start_tbl + ";"
+    # db.engine.execute(sql)
     sql = "CREATE TABLE " + start_tbl + " LIKE archive_bookings_repo;"
     db.engine.execute(sql)
     sql = "INSERT INTO " + start_tbl + " SELECT * " +\
@@ -33,8 +33,8 @@ def report_new_as_bookings():
     db.engine.execute(sql)
 
     # End Table
-    sql = "DROP TABLE " + end_tbl + ";"
-    db.engine.execute(sql)
+    # sql = "DROP TABLE " + end_tbl + ";"
+    # db.engine.execute(sql)
     sql = "CREATE TABLE " + end_tbl + " LIKE archive_bookings_repo;"
     db.engine.execute(sql)
     sql = "INSERT INTO " + end_tbl + " SELECT * " +\
