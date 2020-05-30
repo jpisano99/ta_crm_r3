@@ -1,4 +1,5 @@
 from my_app.tool_box import open_wb
+from my_app.tool_box import push_list_to_xls
 import time
 
 class Customer:
@@ -75,12 +76,8 @@ if __name__ == "__main__" and __package__ is None:
     print('Opened:', ws_prod.nrows, ' Product Rows')
     print('Opened:', ws_svc.nrows, ' Service Rows')
 
+    # Create a dict of Customer Objects
     cust_db = {}
-    # cust_alias = []
-    # tmp_alias = []
-    # prod_booking = 0
-    # svc_booking = 0
-    # sku = ''
 
     #
     # Loop over the product sheet
@@ -108,6 +105,8 @@ if __name__ == "__main__" and __package__ is None:
     # Loop over the services sheet
     #
     for row in range(1, ws_svc.nrows):
+        sls_lv1 = ws_svc.cell_value(row, 11)
+        sls_lv2 = ws_svc.cell_value(row, 12)
         sku = ws_svc.cell_value(row, 7)
         cust_alias = ws_svc.cell_value(row, 20)
         cust_id = ws_svc.cell_value(row, 21)
@@ -122,38 +121,47 @@ if __name__ == "__main__" and __package__ is None:
 
         cust_obj.add_alias(cust_alias)
         cust_obj.add_svc_booking(sku, svc_booking)
+        cust_obj.add_sls_levels(sls_lv1, sls_lv2)
 
     print('There are ', len(cust_db), 'Unique Customer IDs')
     print()
 
+    # for cust_id, cust_obj in cust_db.items():
+    #     print(cust_id, '\t', cust_obj.aliases)
+    #     print('\t\t', cust_obj.prod_booking)
+    #     print('\t\t', cust_obj.svc_booking)
+    #     print('\t\t', cust_obj.segments)
+    #     print()
+
+    output_list = []
+    header_row = ['customer_id', 'customer_aliases',
+                  'sales_level_1', 'sales_level_2', 'sku_type',
+                  'prod_sku', 'prod_booking',
+                  'svc_sku', 'svc_booking']
+    output_list.append(header_row)
+
     for cust_id, cust_obj in cust_db.items():
-        print(cust_id, '\t', cust_obj.aliases)
-        print('\t\t', cust_obj.prod_booking)
-        print('\t\t', cust_obj.svc_booking)
-        print('\t\t', cust_obj.segments)
-        print()
 
-        time.sleep(.5)
+        aliases = ''
+        for alias in cust_obj.aliases:
+            aliases = alias + " : " + aliases
+
+        sls_lv1 = cust_obj.segments[0][0]
+        sls_lv2 = cust_obj.segments[0][1]
+        print(aliases)
+
+        for booking in cust_obj.prod_booking:
+            prod_sku = booking[0]
+            prod_rev = booking[1]
+            output_list.append([cust_id, aliases, sls_lv1, sls_lv2, 'product', prod_sku, prod_rev, '', 0])
+            # print(booking)
+
+        for booking in cust_obj.svc_booking:
+            svc_sku = booking[0]
+            svc_rev = booking[1]
+            output_list.append([cust_id, aliases, sls_lv1, sls_lv2, 'service', svc_sku, 0, '', svc_rev])
+            # print(booking)
+
+    push_list_to_xls(output_list, 'stan.xlsx')
     exit()
-    #
-    #
-    # for id, alias in cust_id_dict.items():
-    #     print(id, alias)
-    # time.sleep(.2)
 
-
-
-
-
-
-    #
-    # svc_sku_list = ['ASF-DCV1-TA-QS-M',
-    #                 'ASF-DCV1-TA-QS-S',
-    #                 'ASF-DCV1-G-TA-V1K',
-    #                 'ASF-DCV1-G-TA-V100',
-    #                 'ASF-DCV1-G-TA-V1KS']
-    #
-    #
-    #         if cust_alias not in tmp_alias:
-    #             tmp_alias.append(cust_alias)
-    #             cust_id_dict[cust_id] = tmp_alias
