@@ -160,17 +160,17 @@ if __name__ == "__main__" and __package__ is None:
             user_row.append(v)
         user_list.append(user_row)
 
-    tool.push_list_to_xls(user_list, 'users.xlsx')
+    tool.push_list_to_xls(user_list, 'ldap_users.xlsx')
 
-        # for user in ldap_users:
-        #     for k, v in user.items():
-        #         print(k)
+    # for user in ldap_users:
+    #     for k, v in user.items():
+    #         print(k)
 
-        # with open('users.csv', 'w') as csvfile:
-        #     fieldnames = ldap_users[0].keys()
-        #     writer = DictWriter(csvfile, fieldnames=fieldnames)
-        #     writer.writeheader()
-        #     for user in ldap_users:
-        #         writer.writerow(user)
+    # with open('users.csv', 'w') as csvfile:
+    #     fieldnames = ldap_users[0].keys()
+    #     writer = DictWriter(csvfile, fieldnames=fieldnames)
+    #     writer.writeheader()
+    #     for user in ldap_users:
+    #         writer.writerow(user)
 
     ldapClient.unbind_s()
