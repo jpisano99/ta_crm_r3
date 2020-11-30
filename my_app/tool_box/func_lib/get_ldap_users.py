@@ -34,6 +34,10 @@ LDAP_PASSWORD = passwords['LDAP_PASSWORD']
 
 LDAP_GROUPS = ['group.sgomann', 'group.joebucha']
 # LDAP_GROUPS = ['group.joebucha']
+# LDAP_GROUPS = ['group.jpisano']
+
+TETRATION_MGRS = ['jpisano', 'chmchenr', 'lpomelli']
+SWATCH_MGRS = ['mimoriar', 'kennmill', 'joebucha']
 
 print('Groups I am searching', LDAP_GROUPS)
 
@@ -132,7 +136,10 @@ if __name__ == "__main__" and __package__ is None:
                 person['cec'] = target[0][1]['sAMAccountName'][0].decode('utf-8')
                 person['fullName'] = str(target[0][1]['description'][0].decode('utf-8'))
                 person['firstName'] = fullName[0]
-                person['lastName'] = " ".join(fullName[1:])
+
+                tmp_last_name = " ".join(fullName[1:])
+                person['lastName'] = tmp_last_name.split()[0]  # Correct for names like Whitlock II
+
                 person['title'] = target[0][1]['title'][0].decode('utf-8')
                 person['dept name'] = target[0][1]['ciscoITDescription'][0].decode('utf-8')
                 person['dept number'] = target[0][1]['department'][0].decode('utf-8')
@@ -140,6 +147,16 @@ if __name__ == "__main__" and __package__ is None:
 
                 str_end = target[0][1]['manager'][0].decode('utf-8').find(',')
                 person['manager'] = target[0][1]['manager'][0].decode('utf-8')[3:str_end]
+
+                if person['manager'] in TETRATION_MGRS:
+                    speciality = 'Tetration'
+                elif (person['manager'] in SWATCH_MGRS) and \
+                        (person['title'].find('TECHNICAL') != -1):
+                    speciality = 'StealthWatch'
+                else:
+                    speciality = ''
+
+                person['speciality'] = speciality
 
                 ldap_users.append(person)
             except:

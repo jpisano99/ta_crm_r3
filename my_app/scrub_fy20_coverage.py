@@ -4,6 +4,14 @@ from my_app.settings import app_cfg
 
 
 def scrub_fy20_coverage():
+    # Get the Tetration Specialists
+    wb, ws = tool.open_wb('ldap_users.xlsx')
+    tet_tsa_list = []
+    for x in range(1, ws.nrows):
+        ws.cell_value(x, 10)
+        if ws.cell_value(x, 10) == 'Tetration':
+            tet_tsa_list.append(ws.cell_value(x, 4))
+
     # file_name = "TA Services Bookings with SO as of 11-23-20"
 
     file_name = 'global_coverage'
@@ -36,11 +44,18 @@ def scrub_fy20_coverage():
             css = ws_americas.cell_value(row, 20)
             tsa = ws_americas.cell_value(row, 21)
             swan_css = ws_americas.cell_value(row, 27)
-            swan_tsa  = ws_americas.cell_value(row, 28)
+            swan_tsa = ws_americas.cell_value(row, 28)
+
+            tet_tsa = ''
+            for tet_tsa in tet_tsa_list:
+                if swan_tsa.find(tet_tsa) != -1:
+                    break
+                else:
+                    tet_tsa = ''
 
             coverage_dict[node_id]=[sls_lev_1, sls_lev_2, sls_lev_3, sls_lev_4, sls_lev_5, sls_lev_6,
                                     css, tsa,
-                                    swan_css, swan_tsa]
+                                    swan_css, swan_tsa, tet_tsa]
 
             # print(node_id, coverage_dict[node_id])
 
@@ -60,23 +75,28 @@ def scrub_fy20_coverage():
             swan_css = ws_emear.cell_value(row, 26)
             swan_tsa  = ws_emear.cell_value(row, 27)
 
+            tet_tsa = ''
+            for tet_tsa in tet_tsa_list:
+                if swan_tsa.find(tet_tsa) != -1:
+                    break
+                else:
+                    tet_tsa = ''
+
             coverage_dict[node_id]=[sls_lev_1, sls_lev_2, sls_lev_3, sls_lev_4, sls_lev_5, sls_lev_6,
                                     css, tsa,
-                                    swan_css, swan_tsa]
-
-            # print(node_id, coverage_dict[node_id])
+                                    swan_css, swan_tsa, tet_tsa]
 
     coverage_list = [['node_id',
                       'sales_level_1', 'sales_level_2', 'sales_level_3',
                       'sales_level_4', 'sales_level_5', 'sales_level_6',
-                      'css', 'tsa', 'swan_css', 'swan_tsa']]
+                      'css', 'tsa', 'swan_css', 'swan_tsa', 'tetration tsa']]
 
     for k, v in coverage_dict.items():
         tmp_list = v
-        tmp_list.insert(0,k)
+        tmp_list.insert(0, k)
         coverage_list.append(tmp_list)
 
-    tool.push_list_to_xls(coverage_list,'swan_coverage.xlsx')
+    tool.push_list_to_xls(coverage_list, 'swan_coverage.xlsx')
     print (len(coverage_dict))
     print(my_path)
     return
