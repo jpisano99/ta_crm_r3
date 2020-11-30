@@ -4,9 +4,6 @@ import my_app.tool_box as tool
 #
 # Cut and Paste into a XLSX file from the Cisco Mailer
 #
-
-
-
 def gather_mailer_data(mailer_xlsx):
     mail_wb, mail_ws = tool.open_wb(mailer_xlsx)
 

@@ -205,7 +205,7 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 tmp_saas_name = my_ws.cell_value(row, 4)
                 tmp_saas_vrf = my_ws.cell_value(row, 5)
                 tmp_saas_so = my_ws.cell_value(row, 6)
-                tmp_saas_start_date = my_ws.cell_value(row, 7)
+                tmp_saas_start_date = my_ws.cell_value(row, 8)
                 if tmp_saas_name == '':
                     tmp_saas_name = 'Not Yet Provisioned'
                 saas_lookup[tmp_saas_name] = [tmp_cust_name, tmp_saas_vrf, tmp_cust_id,
@@ -231,8 +231,9 @@ def pre_run_file_checks(run_dir=app_cfg['UPDATES_SUB_DIR']):
                 my_new_row.append(my_cell.value)
                 continue
             if col_num == 9 or col_num == 11:
-                tmp_val = datetime.strptime(my_cell.value, '%d %b %Y')
-                # tmp_val = datetime.strptime(my_cell.value, '%m/%d/%Y')
+                # print(row_num, col_num, my_cell, type(my_cell.value))
+                # tmp_val = datetime.strptime(my_cell.value, '%d %b %Y')
+                tmp_val = datetime.strptime(my_cell.value, '%m/%d/%Y')
             elif col_num == 13:
                 tmp_val = my_cell.value
                 try:
