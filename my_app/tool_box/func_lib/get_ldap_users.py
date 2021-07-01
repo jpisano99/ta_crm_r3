@@ -1,7 +1,8 @@
 import ldap
 import json
-from csv import DictWriter
-import my_app.tool_box as tool
+# from csv import DictWriter
+# import my_app.tool_box as tool
+import pandas as pd
 from my_app.my_secrets import passwords
 import time
 
@@ -53,7 +54,6 @@ print('Groups I am searching', LDAP_GROUPS)
 ldap.initialize(uri, bytes_mode=False)
 ldapClient.bind_s('CN=jpisano,OU=Employees,OU=Cisco Users,DC=cisco,DC=com', LDAP_PASSWORD)
 print('LDAP Bind Successful !!')
-
 
 #
 # ====================================================================================
@@ -162,32 +162,27 @@ if __name__ == "__main__" and __package__ is None:
             except:
                 print('Incomplete:', member)
 
-    # Create list for Excel output
-    user_list = []
-    user_row = []
-
-    for col_name in ldap_users[0].keys():
-        user_row.append(col_name)
-
-    user_list.append(user_row)
+    #
+    # Create DataFrame for output
+    #
+    user_data = {'email': [],
+                 'cec': [],
+                 'fullName': [],
+                 'firstName': [],
+                 'lastName': [],
+                 'title': [],
+                 'dept name': [],
+                 'dept number': [],
+                 'employeeID': [],
+                 'manager': [],
+                 'speciality': []
+                 }
 
     for user in ldap_users:
-        user_row = []
         for k, v in user.items():
-            user_row.append(v)
-        user_list.append(user_row)
+            user_data[k].append(v)
 
-    tool.push_list_to_xls(user_list, 'ldap_users.xlsx')
-
-    # for user in ldap_users:
-    #     for k, v in user.items():
-    #         print(k)
-
-    # with open('users.csv', 'w') as csvfile:
-    #     fieldnames = ldap_users[0].keys()
-    #     writer = DictWriter(csvfile, fieldnames=fieldnames)
-    #     writer.writeheader()
-    #     for user in ldap_users:
-    #         writer.writerow(user)
+    df_users = pd.DataFrame(user_data)
+    df_users.to_excel('users.xlsx', index=False)
 
     ldapClient.unbind_s()

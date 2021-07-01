@@ -10,39 +10,32 @@ def build_coverage_dict():
     # Create an object from SmartSheets
     coverage = app_cfg['SS_COVERAGE']
     my_coverage = Ssheet(coverage)
-
     team_dict = {}
 
+    # Get Col Names for SmartSheet Coverage map as keys
+    # Iterate across each SmartSheet row
     for row in my_coverage.rows:
-        pss = ''
-        tsa = ''
-        x = 0
-        key = ''
-        for row_data in row['cells']:
-            x += 1
-            if x == 1:
-                continue
-            elif x == 2:
-                pss = row_data['value']
-            elif x == 3:
-                tsa = row_data['value']
-            elif x >= 4:
-                key = key + row_data['value']+','
+        swan_css = ''
+        tetration_tsa = ''
+        my_sales_level = ''
 
-        key = key.replace('*', '')
+        for col_name, row_data in zip(my_coverage.col_name_idx.keys(), row['cells']):
+            this_cell_value = ''
 
-        if len(key) == 0:
-            key = '*'
-        key = key.rstrip(',')
+            # Check if the SmartSheet cell has a value
+            if 'value' in row_data.keys():
+                this_cell_value = row_data['value']
 
-        # # Create a Dict of sales_levels with a List of team(s) covering each territory
-        info = team_dict.get(key, [])
-        info.append((pss, tsa))
-        team_dict[key] = info
+                if col_name == 'swan_css':
+                    swan_css = row_data['value']
+                elif col_name == 'tetration_tsa':
+                    tetration_tsa = row_data['value']
 
-    #
-    # the team_dict is now created !!!
-    #
+            if col_name.find('sales_level_') != -1:
+                my_sales_level = my_sales_level + this_cell_value + ','
 
+        my_sales_level = my_sales_level.rstrip(',')
+        team_dict[my_sales_level] = {'swan_css': swan_css, 'tetration_tsa': tetration_tsa}
+
+    print(len(team_dict))
     return team_dict
-

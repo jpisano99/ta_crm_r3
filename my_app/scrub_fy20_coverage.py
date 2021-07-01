@@ -1,6 +1,7 @@
 import my_app.tool_box as tool
 import os
 from my_app.settings import app_cfg
+import time
 
 
 def scrub_fy20_coverage():
@@ -10,7 +11,7 @@ def scrub_fy20_coverage():
     for x in range(1, ws.nrows):
         ws.cell_value(x, 10)
         if ws.cell_value(x, 10) == 'Tetration':
-            tet_tsa_list.append(ws.cell_value(x, 4))
+            tet_tsa_list.append([ws.cell_value(x, 4), ws.cell_value(x, 3)])
 
     # file_name = "TA Services Bookings with SO as of 11-23-20"
 
@@ -30,6 +31,7 @@ def scrub_fy20_coverage():
 
     coverage_dict = {}
 
+    # Process Americas Coverage
     for row in range(1, ws_americas.nrows):
         if ws_americas.cell_value(row, 27) != '':
 
@@ -48,7 +50,8 @@ def scrub_fy20_coverage():
 
             tet_tsa = ''
             for tet_tsa in tet_tsa_list:
-                if swan_tsa.find(tet_tsa) != -1:
+                if swan_tsa.find(tet_tsa[0]) != -1:
+                    tet_tsa = tet_tsa[0] + ', ' + tet_tsa[1]
                     break
                 else:
                     tet_tsa = ''
@@ -57,8 +60,7 @@ def scrub_fy20_coverage():
                                     css, tsa,
                                     swan_css, swan_tsa, tet_tsa]
 
-            # print(node_id, coverage_dict[node_id])
-
+    # Process EMEAR Coverage
     for row in range(1, ws_emear.nrows):
         if ws_emear.cell_value(row, 26) != '':
 
@@ -73,11 +75,12 @@ def scrub_fy20_coverage():
             css = ws_emear.cell_value(row, 19)
             tsa = ws_emear.cell_value(row, 20)
             swan_css = ws_emear.cell_value(row, 26)
-            swan_tsa  = ws_emear.cell_value(row, 27)
+            swan_tsa = ws_emear.cell_value(row, 27)
 
             tet_tsa = ''
             for tet_tsa in tet_tsa_list:
-                if swan_tsa.find(tet_tsa) != -1:
+                if swan_tsa.find(tet_tsa[0]) != -1:
+                    tet_tsa = tet_tsa[0] + ', ' + tet_tsa[1]
                     break
                 else:
                     tet_tsa = ''
@@ -89,7 +92,7 @@ def scrub_fy20_coverage():
     coverage_list = [['node_id',
                       'sales_level_1', 'sales_level_2', 'sales_level_3',
                       'sales_level_4', 'sales_level_5', 'sales_level_6',
-                      'css', 'tsa', 'swan_css', 'swan_tsa', 'tetration tsa']]
+                      'css', 'tsa', 'swan_css', 'swan_tsa', 'tetration_tsa']]
 
     for k, v in coverage_dict.items():
         tmp_list = v
@@ -97,7 +100,7 @@ def scrub_fy20_coverage():
         coverage_list.append(tmp_list)
 
     tool.push_list_to_xls(coverage_list, 'swan_coverage.xlsx')
-    print (len(coverage_dict))
+    print(len(coverage_dict))
     print(my_path)
     return
 

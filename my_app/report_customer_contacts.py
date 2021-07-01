@@ -57,6 +57,10 @@ def report_customer_contacts():
         pss = sales_team[0]
         tsa = sales_team[1]
 
+        print()
+        print('got this', sales_team)
+        print('got team', pss, tsa)
+        # exit()
         customer_contact_list.append([
                     r.erp_end_customer_name, r.end_customer_global_ultimate_name, r.end_customer_global_ultimate_id,
                     pss, tsa,
